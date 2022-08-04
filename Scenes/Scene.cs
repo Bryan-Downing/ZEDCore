@@ -29,9 +29,19 @@ namespace ZED
         protected bool _isPaused = false;
 
         protected long _frameCount = 0;
+        protected long _elapsedMS
+        {
+            get { return _timeStopwatch?.ElapsedMilliseconds ?? 0; }
+        }
+
+        protected long _lastFrameMS
+        {
+            get { return _lastFrameTicks / TimeSpan.TicksPerMillisecond; }
+        }
+        protected long _lastFrameTicks = 0;
 
         private Stopwatch _frameStopwatch = new Stopwatch();
-        private Stopwatch _secondsStopwatch = new Stopwatch();
+        private Stopwatch _timeStopwatch = new Stopwatch();
 
         public Scene (string name = "Unknown Scene")
         {
@@ -84,12 +94,17 @@ namespace ZED
                 Program.Closing += OnProgramClosing;
 
                 _frameStopwatch.Restart();
-                _secondsStopwatch.Restart();
+                _timeStopwatch.Restart();
 
                 Setup();
             }
 
-            PrimaryExecutionMethod();
+            while (!_sceneClosing)
+            {
+                PrimaryExecutionMethod();
+
+                Draw();
+            }
 
             Close();
 
@@ -99,6 +114,7 @@ namespace ZED
         protected virtual void Draw()
         {
             _frameStopwatch.Stop();
+            _lastFrameTicks = _frameStopwatch.ElapsedTicks;
 
             if (DisplayFPS)
             {
@@ -154,7 +170,7 @@ namespace ZED
             InputManager.Instance.AxisChanged -= OnAxisChanged;
 
             _frameStopwatch.Stop();
-            _secondsStopwatch.Stop();
+            _timeStopwatch.Stop();
 
             OptionsMenu optionsMenu = new OptionsMenu();
             optionsMenu.Run(_display);
@@ -162,7 +178,7 @@ namespace ZED
             _isPaused = false;
 
             _frameStopwatch.Start();
-            _secondsStopwatch.Start();
+            _timeStopwatch.Start();
 
             InputManager.Instance.ButtonChanged += OnButtonChanged;
             InputManager.Instance.AxisChanged += OnAxisChanged;
@@ -170,7 +186,7 @@ namespace ZED
 
         private void DrawFPSCounter()
         {
-            long fps = (long)(_frameCount / Math.Max(_secondsStopwatch.ElapsedMilliseconds / 1000.0, 1.0));
+            long fps = (long)(_frameCount / Math.Max(_timeStopwatch.ElapsedMilliseconds / 1000.0, 1.0));
 
             _display.DrawRect(1, 1, 13, 7, Common.Colors.Black);
 

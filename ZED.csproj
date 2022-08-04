@@ -133,6 +133,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="SceneManager.cs" />
+    <Compile Include="Scenes\Multiplayer.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utilities\FontLoader.cs" />
   </ItemGroup>

@@ -75,22 +75,22 @@ namespace ZED.Scenes
             {
                 if (e.Value > 0)
                 {
-                    _currentPage.SelectNextOption(false);
+                    _currentPage?.SelectNextOption(false);
                 }
                 else if (e.Value < 0)
                 {
-                    _currentPage.SelectNextOption(true);
+                    _currentPage?.SelectNextOption(true);
                 }
             }
             else if (e.Axis == Axis.Horizontal)
             {
                 if (e.Value > 0)
                 {
-                    _currentPage.SelectedElement?.Right();
+                    _currentPage?.SelectedElement?.Right();
                 }
                 else if (e.Value < 0)
                 {
-                    _currentPage.SelectedElement?.Left();
+                    _currentPage?.SelectedElement?.Left();
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace ZED.Scenes
         {
             if (e.Button == Button.A)
             {
-                _currentPage.SelectedElement?.Press();
+                _currentPage?.SelectedElement?.Press();
             }
         }
     }

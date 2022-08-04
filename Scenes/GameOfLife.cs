@@ -72,7 +72,7 @@ namespace ZED.Scenes
 
         protected override void PrimaryExecutionMethod()
         {
-            while (!_sceneClosing)
+            //while (!_sceneClosing)
             {
                 _display.Clear();
 
@@ -112,8 +112,6 @@ namespace ZED.Scenes
                 {
                     RandomizeGrid(0.025);
                 }
-
-                Draw();
             }
         }
 

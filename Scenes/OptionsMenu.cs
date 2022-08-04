@@ -76,7 +76,7 @@ namespace ZED.Scenes
 
         protected override void PrimaryExecutionMethod()
         {
-            while (!_sceneClosing)
+            //while (!_sceneClosing)
             {
                 _display.Clear();
 
@@ -92,8 +92,6 @@ namespace ZED.Scenes
                     option.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + colorOffset, 1, 0.8);
                     colorOffset += 10;
                 }
-
-                Draw();
             }
         }
     }

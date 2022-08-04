@@ -20,6 +20,10 @@ namespace ZED.Scenes
             Up = 3
         }
 
+        private Directions _direction;
+        private int _curX = 0, _curY = 0;
+        private int _leftIters = 0, _rightIters = 0, _upIters = 0, _downIters = 0;
+
         public Intro() : base("Intro")
         {
         }
@@ -31,86 +35,75 @@ namespace ZED.Scenes
 
         protected override void Setup()
         {
-            
+            _direction = Directions.Right;
+            _display.Clear();
         }
 
         protected override void PrimaryExecutionMethod()
         {
-            Directions direction = Directions.Right;
-
-            int curX = 0, curY = 0;
-            int leftIters = 0, rightIters = 0, upIters = 0, downIters = 0;
-
-            _display.Clear();
-
-            while (!_sceneClosing)
+            //while (!_sceneClosing)
             {
-                for (int i = 0; i < (_frameCount / 10); i++)
+                for (int i = 0; i < _frameCount; i++)
                 {
-                    _display.SetPixel(curX, curY, ColorExtensions.ColorFromHSV(curX + curY));
+                    _display.SetPixel(_curX, _curY, ColorExtensions.ColorFromHSV(_curX + _curY));
 
-                    switch (direction)
+                    switch (_direction)
                     {
                         case Directions.Right:
-                            if (curX >= _display.Width - rightIters - 1)
+                            if (_curX >= _display.Width - _rightIters - 1)
                             {
-                                direction = Directions.Down;
-                                rightIters++;
+                                _direction = Directions.Down;
+                                _rightIters++;
                             }
                             else
                             {
-                                curX++;
+                                _curX++;
                             }
                             break;
                         case Directions.Down:
-                            if (curY >= _display.Height - downIters - 1)
+                            if (_curY >= _display.Height - _downIters - 1)
                             {
-                                direction = Directions.Left;
-                                downIters++;
+                                _direction = Directions.Left;
+                                _downIters++;
                             }
                             else
                             {
-                                curY++;
+                                _curY++;
                             }
                             break;
                         case Directions.Left:
-                            if (curX <= leftIters + 1)
+                            if (_curX <= _leftIters + 1)
                             {
-                                direction = Directions.Up;
-                                leftIters++;
+                                _direction = Directions.Up;
+                                _leftIters++;
                             }
                             else
                             {
-                                curX--;
+                                _curX--;
                             }
                             break;
                         case Directions.Up:
-                            if (curY <= upIters + 1)
+                            if (_curY <= _upIters + 1)
                             {
-                                direction = Directions.Right;
-                                upIters++;
+                                _direction = Directions.Right;
+                                _upIters++;
                             }
                             else
                             {
-                                curY--;
+                                _curY--;
                             }
                             break;
                     }
 
 
-                    if (upIters + downIters >= _display.Height)
+                    if (_upIters + _downIters >= _display.Height)
                     {
                         break;
                     }
                 }
 
-                Draw();
-
-                if (upIters + downIters >= _display.Height)
+                if (_upIters + _downIters >= _display.Height)
                 {
-                    _display.Clear();
-                    Draw();
-
                     Close();
                 }
             }

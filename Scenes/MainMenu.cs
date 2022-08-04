@@ -34,7 +34,7 @@ namespace ZED.Scenes
 
             mainMenu.TextOptions.Add(new SelectableText(0, 17, "start", Colors.White, Fonts.FiveBySeven)
             {
-                OnPress = () => { _nextScene = new GameOfLife(); Close(); }
+                OnPress = () => { _nextScene = new Multiplayer(); Close(); }
             });
 
             mainMenu.TextOptions.Add(new SelectableText(0, 25, "options", Colors.White, Fonts.FiveBySeven)
@@ -52,7 +52,7 @@ namespace ZED.Scenes
 
         protected override void PrimaryExecutionMethod()
         {
-            while (!_sceneClosing)
+            //while (!_sceneClosing)
             {
                 _display.Clear();
 
@@ -68,8 +68,6 @@ namespace ZED.Scenes
                     option.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + colorOffset, 1, 0.8);
                     colorOffset += 10;
                 }
-
-                Draw();
             }
         }
     }
