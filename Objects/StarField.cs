@@ -4,46 +4,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZED.Display;
 
 namespace ZED.Objects
 {
     internal class StarField
     {
         private List<Star> _stars;
-        private RGBLedCanvas _canvas;
 
-        public StarField(RGBLedCanvas canvas, int numStars)
+        public StarField(IDisplay display, int numStars)
         {
-            _canvas = canvas;
-
             _stars = new List<Star>();
             for (int i = 0; i < numStars; i++)
             {
-                _stars.Add(new Star(canvas, ColorExtensions.ColorFromHSV(Program.Random.Next(360))));
+                _stars.Add(new Star(display, ColorExtensions.ColorFromHSV(Program.Random.Next(360))));
             }
-
-            Settings.BrightnessChanged += OnBrightnessChanged;
         }
 
         public void Draw(long frameCount)
         {
             foreach (Star star in _stars)
             {
-                star.Draw(_canvas, frameCount);
+                star.Draw(frameCount);
             }
-        }
-
-        private void OnBrightnessChanged(double brightness)
-        {
-            foreach (var star in _stars)
-            {
-                star.Color = star.OriginalColor.Mult(brightness);
-            }
-        }
-
-        ~StarField()
-        {
-            Settings.BrightnessChanged -= OnBrightnessChanged;
         }
     }
 
@@ -58,31 +41,35 @@ namespace ZED.Objects
         private int _fallSpeed;
         private int _xVelocity;
 
-        public Star(RGBLedCanvas canvas, Color color)
+        private IDisplay _display;
+
+        public Star(IDisplay display, Color color)
         {
             Color = color;
             OriginalColor = color;
 
-            InitPosition(canvas);
+            _display = display;
+
+            InitPosition();
         }
 
-        private void InitPosition(RGBLedCanvas canvas)
+        private void InitPosition()
         {
-            X = Program.Random.Next(canvas.Width);
+            X = Program.Random.Next(_display.Width);
             Y = -Program.Random.Next(30);
             _fallSpeed = Program.Random.Next(20, 100);
             _xVelocity = Program.Random.Next(500, 1000) * (Program.Random.Next(2) == 0 ? 1 : -1);
         }
 
-        public void Draw(RGBLedCanvas canvas, long frameCount)
+        public void Draw(long frameCount)
         {
-            if (Y > canvas.Height)
+            if (Y > _display.Height)
             {
-                InitPosition(canvas);
+                InitPosition();
             }
             else
             {
-                canvas.SetPixel(X, Y, Color);
+                _display.SetPixel(X, Y, Color);
             }
 
             if (frameCount % _xVelocity == 0)

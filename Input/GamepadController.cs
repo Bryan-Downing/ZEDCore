@@ -14,7 +14,7 @@ namespace ZED.Input
         private readonly string _deviceFile;
         private readonly CancellationTokenSource _cancellationTokenSource;
 
-        public GamepadController(string deviceFile = "/dev/input/js0")
+        public GamepadController(string deviceFile = "/dev/input/js0") : base(deviceFile)
         {
             AxisBindings = new Dictionary<object, Axis>()
             {

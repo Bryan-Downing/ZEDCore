@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZED.Input;
+using System.Runtime.CompilerServices;
+using ZED.Display;
 
 namespace ZED
 {
@@ -21,8 +23,7 @@ namespace ZED
         protected bool _isPausable = true;
         protected Scene _nextScene = Common.MainMenuScene;
 
-        protected RGBLedCanvas _canvas;
-        private RGBLedMatrix _matrix;
+        protected IDisplay _display;
 
         protected bool _sceneClosing = false;
         protected bool _isPaused = false;
@@ -68,14 +69,15 @@ namespace ZED
 
         }
         
-        public Scene Run(RGBLedMatrix matrix, RGBLedCanvas canvas)
+        public Scene Run(IDisplay display)
         {
             lock (SceneManager.SceneChangingLock)
             {
+                Console.WriteLine($"Running scene [{Name}]...");
+
                 _sceneClosing = Program.IsClosing;
 
-                _matrix = matrix;
-                _canvas = canvas;
+                _display = display;
 
                 InputManager.Instance.ButtonChanged += OnButtonChanged;
                 InputManager.Instance.AxisChanged += OnAxisChanged;
@@ -108,17 +110,18 @@ namespace ZED
                 DrawErrorSymbol();
             }
 
-            _canvas = _matrix.SwapOnVsync(_canvas);
+            _display.Draw();
 
             int frameDelayMS = 0;
 
-            if (_isPaused && _isPausable)
-            {
-                OpenPauseMenu();
-            }
-            else if (LockFPS)
+            if (LockFPS)
             {
                 frameDelayMS = (1000 / FrameRate) - (int)_frameStopwatch.ElapsedMilliseconds;
+            }
+
+            if (_isPaused && _isPausable)
+            {
+                RunPauseMenu();
             }
 
             if (frameDelayMS > 0)
@@ -131,7 +134,21 @@ namespace ZED
             _frameCount++;
         }
 
+        private object _pauseLock = new object();
         protected virtual void Pause()
+        {
+            lock (_pauseLock)
+            {
+                if (!_isPausable || _isPaused)
+                {
+                    return;
+                }
+
+                _isPaused = true;
+            }
+        }
+
+        protected virtual void RunPauseMenu()
         {
             InputManager.Instance.ButtonChanged -= OnButtonChanged;
             InputManager.Instance.AxisChanged -= OnAxisChanged;
@@ -139,7 +156,9 @@ namespace ZED
             _frameStopwatch.Stop();
             _secondsStopwatch.Stop();
 
-            OpenPauseMenu();
+            OptionsMenu optionsMenu = new OptionsMenu();
+            optionsMenu.Run(_display);
+
             _isPaused = false;
 
             _frameStopwatch.Start();
@@ -149,28 +168,21 @@ namespace ZED
             InputManager.Instance.AxisChanged += OnAxisChanged;
         }
 
-        private void OpenPauseMenu()
-        {
-            OptionsMenu optionsMenu = new OptionsMenu();
-            optionsMenu.Run(_matrix, _canvas);
-        }
-
         private void DrawFPSCounter()
         {
             long fps = (long)(_frameCount / Math.Max(_secondsStopwatch.ElapsedMilliseconds / 1000.0, 1.0));
 
-            _canvas.DrawRect(1, 1, 13, 7, Common.Colors.Black);
+            _display.DrawRect(1, 1, 13, 7, Common.Colors.Black);
 
-            _canvas.DrawText(Common.Fonts.FourBySix, 2, 7, Common.Colors.White, $"{fps}");
+            _display.DrawText(Common.Fonts.FourBySix, 2, 7, Common.Colors.White, $"{fps}");
         }
 
         private void DrawErrorSymbol()
         {
-            int x = _canvas.Width - 3;
+            int x = _display.Width - (Properties.Resources.Error.Width + 1);
             int y = 1;
 
-            _canvas.DrawRect(x, y, 2, 6, Common.Colors.Red);
-            _canvas.DrawRect(x, y + 7, 2, 2, Common.Colors.Red);
+            _display.DrawImage(x, y, Properties.Resources.Error);
         }
 
         private void OnProgramClosing()

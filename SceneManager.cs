@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ZED.Scenes;
 using rpi_rgb_led_matrix_sharp;
+using ZED.Display;
 
 namespace ZED
 {
@@ -14,8 +15,7 @@ namespace ZED
 
         public static object SceneChangingLock = new object();
 
-        private RGBLedMatrix _matrix = null;
-        private RGBLedCanvas _canvas = null;
+        private IDisplay _display;
 
         private Scene _currentScene = null;
         public Scene CurrentScene
@@ -23,7 +23,7 @@ namespace ZED
             get { return _currentScene; }
         }
 
-        public SceneManager(RGBLedMatrix matrix)
+        public SceneManager(IDisplay display)
         {
             if (Instance != null)
             {
@@ -32,8 +32,7 @@ namespace ZED
 
             Instance = this;
 
-            _matrix = matrix;
-            _canvas = _matrix?.CreateOffscreenCanvas();
+            _display = display;
         }
 
         public void Run(Scene sceneToRun)
@@ -49,15 +48,11 @@ namespace ZED
                 _currentScene = null;
             }
 
-            if (Program.DebugMode)
-            {
-                Console.WriteLine($"Running scene [{sceneToRun.Name}].");
-            }
             _currentScene = sceneToRun;
 
             try
             {
-                var nextScene = _currentScene.Run(_matrix, _canvas);
+                var nextScene = _currentScene.Run(_display);
 
                 if (nextScene != null)
                 {

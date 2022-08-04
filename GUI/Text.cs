@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZED.Display;
 
 namespace ZED.GUI
 {
@@ -35,16 +36,16 @@ namespace ZED.GUI
             _fontSize = Common.Fonts.GetFontSize(Font);
         }
 
-        public void Draw(RGBLedCanvas canvas, bool center = false)
+        public void Draw(IDisplay display, bool center = false)
         {
             if (center)
             {
-                int midX = (canvas.Width / 2) - ((_fontSize.X * Content.Length) / 2);
-                canvas.DrawText(Font, midX, Y, TextColor, Content);
+                int midX = (display.Width / 2) - ((_fontSize.X * Content.Length) / 2);
+                display.DrawText(Font, midX, Y, TextColor, Content);
             }
             else
             {
-                canvas.DrawText(Font, X, Y, TextColor, Content);
+                display.DrawText(Font, X, Y, TextColor, Content);
             }
         }
     }

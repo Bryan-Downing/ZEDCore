@@ -13,7 +13,7 @@ namespace ZED.Input
 
         private readonly CancellationTokenSource _cancellationTokenSource;
 
-        public ConsoleKeyboard()
+        public ConsoleKeyboard() : base("console")
         {
             _cancellationTokenSource = new CancellationTokenSource();
 

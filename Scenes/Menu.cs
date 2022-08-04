@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ZED.GUI;
@@ -10,11 +11,62 @@ namespace ZED.Scenes
 {
     internal abstract class Menu : Scene
     {
-        protected TextMenu _textMenu;
+        public TextMenu CurrentPage
+        {
+            get { return _currentPage; }
+            set { GotoPage(value); }
+        }
+
+        public TextMenu PreviousPage { get; private set; }
+
+        private List<TextMenu> _pages;
+        private TextMenu _currentPage;
 
         protected Menu(string name = "Unknown Menu") : base(name)
         {
-            _textMenu = new TextMenu();
+            _pages = new List<TextMenu>();
+            _currentPage = null;
+            PreviousPage = null;
+        }
+
+        protected override void Draw()
+        {
+            CurrentPage?.Draw(_display, true);
+
+            base.Draw();
+        }
+
+        protected void AddPage(TextMenu page = null)
+        {
+            if (page == null)
+            {
+                page = new TextMenu();
+            }
+
+            if (!_pages.Contains(page))
+            {
+                _pages.Add(page);
+            }
+
+            if (_currentPage == null)
+            {
+                GotoPage(page);
+            }
+        }
+
+        protected void GotoPage(TextMenu page)
+        {
+            if (!_pages.Contains(page))
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (_currentPage != page)
+            {
+                PreviousPage = _currentPage;
+                _currentPage = page;
+                _currentPage.ResetSelection();
+            }
         }
 
         protected override void OnAxisChanged(object sender, AxisEventArgs e)
@@ -23,22 +75,22 @@ namespace ZED.Scenes
             {
                 if (e.Value > 0)
                 {
-                    _textMenu.SelectNextOption(false);
+                    _currentPage.SelectNextOption(false);
                 }
                 else if (e.Value < 0)
                 {
-                    _textMenu.SelectNextOption(true);
+                    _currentPage.SelectNextOption(true);
                 }
             }
             else if (e.Axis == Axis.Horizontal)
             {
                 if (e.Value > 0)
                 {
-                    _textMenu.SelectedElement?.Right();
+                    _currentPage.SelectedElement?.Right();
                 }
                 else if (e.Value < 0)
                 {
-                    _textMenu.SelectedElement?.Left();
+                    _currentPage.SelectedElement?.Left();
                 }
             }
         }
@@ -47,7 +99,7 @@ namespace ZED.Scenes
         {
             if (e.Button == Button.A)
             {
-                _textMenu.SelectedElement?.Press();
+                _currentPage.SelectedElement?.Press();
             }
         }
     }

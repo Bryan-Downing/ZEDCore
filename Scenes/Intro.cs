@@ -41,18 +41,18 @@ namespace ZED.Scenes
             int curX = 0, curY = 0;
             int leftIters = 0, rightIters = 0, upIters = 0, downIters = 0;
 
-            _canvas.Clear();
+            _display.Clear();
 
             while (!_sceneClosing)
             {
                 for (int i = 0; i < (_frameCount / 10); i++)
                 {
-                    _canvas.SetPixel(curX, curY, ColorExtensions.ColorFromHSV(curX + curY));
+                    _display.SetPixel(curX, curY, ColorExtensions.ColorFromHSV(curX + curY));
 
                     switch (direction)
                     {
                         case Directions.Right:
-                            if (curX >= _canvas.Width - rightIters - 1)
+                            if (curX >= _display.Width - rightIters - 1)
                             {
                                 direction = Directions.Down;
                                 rightIters++;
@@ -63,7 +63,7 @@ namespace ZED.Scenes
                             }
                             break;
                         case Directions.Down:
-                            if (curY >= _canvas.Height - downIters - 1)
+                            if (curY >= _display.Height - downIters - 1)
                             {
                                 direction = Directions.Left;
                                 downIters++;
@@ -98,7 +98,7 @@ namespace ZED.Scenes
                     }
 
 
-                    if (upIters + downIters >= _canvas.Height)
+                    if (upIters + downIters >= _display.Height)
                     {
                         break;
                     }
@@ -106,9 +106,9 @@ namespace ZED.Scenes
 
                 Draw();
 
-                if (upIters + downIters >= _canvas.Height)
+                if (upIters + downIters >= _display.Height)
                 {
-                    _canvas.Clear();
+                    _display.Clear();
                     Draw();
 
                     Close();

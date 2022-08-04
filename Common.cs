@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZED.Display;
 
 namespace ZED
 {
@@ -28,24 +29,53 @@ namespace ZED
 
         public static class Fonts
         {
-            public static readonly RGBLedFont FourBySix = new RGBLedFont(Path.Combine(_fontDir, "4x6.bdf"));
-            public static readonly RGBLedFont FiveBySeven = new RGBLedFont(Path.Combine(_fontDir, "5x7.bdf"));
-            public static readonly RGBLedFont FiveByEight = new RGBLedFont(Path.Combine(_fontDir, "5x8.bdf"));
-            public static readonly RGBLedFont SixByTen = new RGBLedFont(Path.Combine(_fontDir, "6x10.bdf"));
-            public static readonly RGBLedFont SixByTwelve = new RGBLedFont(Path.Combine(_fontDir, "6x12.bdf"));
-            public static readonly RGBLedFont C64 = new RGBLedFont(Path.Combine(_fontDir, "c64.bdf"));
+            private static System.Collections.Concurrent.ConcurrentDictionary<string, RGBLedFont> _fontDictionary;
 
+            static Fonts()
+            {
+                _fontDictionary = Utilities.FontLoader.LoadFromResources();
+            }
+
+            /// <summary>
+            /// Initializes this class. This method has no body, and serves to call the static constructor.
+            /// </summary>
+            public static void Init()
+            {
+                
+            }
+
+            // TODO: Figure out a more elegant solution to this.
+            public static RGBLedFont FourBySix { get { return _fontDictionary["4x6"]; } }
+            public static RGBLedFont FiveBySeven { get { return _fontDictionary["5x7"]; } }
+            public static RGBLedFont FiveByEight { get { return _fontDictionary["5x8"]; } }
+            public static RGBLedFont SixByNine { get { return _fontDictionary["6x9"]; } }
+            public static RGBLedFont SixByTen { get { return _fontDictionary["6x10"]; } }
+            public static RGBLedFont SixByTwelve { get { return _fontDictionary["6x12"]; } }
+            public static RGBLedFont SevenByThirteen { get { return _fontDictionary["7x13"]; } }
+            public static RGBLedFont SevenByFourteen { get { return _fontDictionary["7x14"]; } }
+            public static RGBLedFont EightByThirteen { get { return _fontDictionary["8x13"]; } }
+            public static RGBLedFont NineByFifteen { get { return _fontDictionary["9x15"]; } }
+            public static RGBLedFont NineByEighteen { get { return _fontDictionary["9x18"]; } }
+
+            // TODO: And this.
             public static (int x, int y) GetFontSize(RGBLedFont font)
             {
                 if (font == null)
                 {
                     throw new ArgumentNullException(nameof(font));
                 }
+
                 if (font == FourBySix) { return (4, 6); }
                 if (font == FiveBySeven) { return (5, 7); }
                 if (font == FiveByEight) { return (5, 8); }
+                if (font == SixByNine) { return (6, 9); }
                 if (font == SixByTen) { return (6, 10); }
                 if (font == SixByTwelve) { return (6, 12); }
+                if (font == SevenByThirteen) { return (7, 13); }
+                if (font == SevenByFourteen) { return (7, 14); }
+                if (font == EightByThirteen) { return (8, 13); }
+                if (font == NineByFifteen) { return (9, 15); }
+                if (font == NineByEighteen) { return (9, 18); }
 
                 return (0, 0);
             }
@@ -59,79 +89,32 @@ namespace ZED
             public static Color Blue = new Color(0, 0, 255);
             public static Color Black = new Color(0, 0, 0);
 
-            static Colors() 
-            {
-                Settings.BrightnessChanged += OnBrightnessChanged;
-            }
-
-            public static void OnBrightnessChanged(double brightness)
-            {
-                White = White.Mult(brightness);
-                Red = Red.Mult(brightness);
-                Green = Green.Mult(brightness);
-                Blue = Blue.Mult(brightness);
-            }
-
             public static Color FromRGB(int r, int g, int b)
             {
-                return new Color(r, g, b).Mult(Settings.Brightness);
+                return new Color(r, g, b);
             }
         }
     }
 
     public static class DrawExtensions
     {
-        public static void DrawRect(this RGBLedCanvas canvas, int x, int y, int width, int height, Color color)
+        public static void DrawFont(this IDisplay display, int x, int y, System.Drawing.Font drawFont, string text)
         {
-            for (int i = x; i < x + width; i++)
+            using (System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(display.Width, display.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb))
             {
-                for (int j = y; j < y + height; j++)
+                using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bmp))
                 {
-                    canvas.SetPixel(i, j, color);
-                }
-            }
-        }
+                    using (System.Drawing.SolidBrush brush = new System.Drawing.SolidBrush(System.Drawing.Color.Red))
+                    using (System.Drawing.SolidBrush bg = new System.Drawing.SolidBrush(System.Drawing.Color.Black))
+                    {
+                        g.FillRectangle(bg, new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height));
 
-        public static void DrawBox(this RGBLedCanvas canvas, int x, int y, int width, int height, Color color)
-        {
-            for (int i = x; i < x + width; i++)
-            {
-                canvas.SetPixel(i, y, color);
-                canvas.SetPixel(i, y + height - 1, color);
-            }
+                        System.Drawing.Point point = new System.Drawing.Point(x, y);
 
-            for (int j = y; j < y + height; j++)
-            {
-                canvas.SetPixel(x, j, color);
-                canvas.SetPixel(x + width - 1, j, color);
-            }
-        }
+                        g.DrawString(text, drawFont, brush, point);
 
-        public static void DrawImage(this RGBLedCanvas canvas, int x, int y, System.Drawing.Bitmap image)
-        {
-            if (image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format24bppRgb)
-            {
-                throw new NotSupportedException($"Unsupported pixel format: {image.PixelFormat}");
-            }
-
-            var imageData = image.LockBits(new System.Drawing.Rectangle(0, 0, image.Width, image.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, image.PixelFormat);
-
-            IntPtr ptr = imageData.Scan0;
-            int numBytes = imageData.Stride * imageData.Height;
-
-            var bytes = new byte[numBytes];
-            System.Runtime.InteropServices.Marshal.Copy(ptr, bytes, 0, numBytes);
-
-            image.UnlockBits(imageData);
-
-            for (int imgY = 0; imgY < imageData.Height; imgY++)
-            {
-                for (int imgX = 0; imgX < imageData.Stride; imgX += 3)
-                {
-                    byte r = bytes[imgX + 2 + imgY * imageData.Stride];
-                    byte g = bytes[imgX + 1 + imgY * imageData.Stride];
-                    byte b = bytes[imgX + 0 + imgY * imageData.Stride];
-                    canvas.SetPixel(x + (imgX / 3), y + imgY, new Color(r, g, b));
+                        display.DrawImage(x, y, bmp);
+                    }
                 }
             }
         }
@@ -174,9 +157,9 @@ namespace ZED
             else if (hue < 300) { red = _hsvValues[hue - 240]; green = 0; blue = 255; }
             else{ red = 255; green = 0; blue = _hsvValues[360 - hue]; }
 
-            red = (int)(red * value * Settings.Brightness);
-            blue = (int)(blue * value * Settings.Brightness);
-            green = (int)(green * value * Settings.Brightness);
+            red = (int)(red * value);
+            blue = (int)(blue * value);
+            green = (int)(green * value);
 
             int max = Math.Max(Math.Max(red, green), blue);
 

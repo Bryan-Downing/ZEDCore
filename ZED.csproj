@@ -92,10 +92,23 @@
     <None Include=".vs\slnx.sqlite" />
     <None Include=".vs\VSWorkspaceState.json" />
     <None Include="app.config" />
+    <None Include="Resources\Fonts\Font_10x20.bdf" />
+    <None Include="Resources\Fonts\Font_4x6.bdf" />
+    <None Include="Resources\Fonts\Font_5x7.bdf" />
+    <None Include="Resources\Fonts\Font_5x8.bdf" />
+    <None Include="Resources\Fonts\Font_6x10.bdf" />
+    <None Include="Resources\Fonts\Font_6x9.bdf" />
+    <None Include="Resources\Fonts\Font_7x13.bdf" />
+    <None Include="Resources\Fonts\Font_7x14.bdf" />
+    <None Include="Resources\Fonts\Font_8x13.bdf" />
+    <None Include="Resources\Fonts\Font_9x15.bdf" />
+    <None Include="Resources\Fonts\Font_9x18.bdf" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common.cs" />
+    <Compile Include="Display\IDisplay.cs" />
+    <Compile Include="Display\LEDMatrixDisplay.cs" />
     <Compile Include="Input\AxisEventArgs.cs" />
     <Compile Include="Input\ButtonEventArgs.cs" />
     <Compile Include="Input\ByteArrayExtensions.cs" />
@@ -121,6 +134,7 @@
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="SceneManager.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Utilities\FontLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include=".vs\RGB Matrix\v17\" />
@@ -140,7 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Input\license.txt" />
-    <None Include="Resources\Image1.png" />
+    <None Include="Resources\Error.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

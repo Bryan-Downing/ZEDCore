@@ -1,6 +1,10 @@
 ﻿using ZED.Scenes;
 using rpi_rgb_led_matrix_sharp;
 using System;
+using ZED.Display;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace ZED
 {
@@ -24,7 +28,9 @@ namespace ZED
 
             Console.WriteLine();
 
-            using (var matrix = new RGBLedMatrix(Common.DefaultOptions))
+            Task.Run(() => Common.Fonts.Init()); // Start loading the font resources on another thread.
+
+            using (var matrix = new LEDMatrixDisplay(Common.DefaultOptions))
             {
                 using (InputManager inputManager = new InputManager())
                 {

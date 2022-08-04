@@ -8,12 +8,10 @@ namespace ZED
 {
     internal static class Settings
     {
-        public static event Action<double> BrightnessChanged;
-
         private static double _brightness = 1.0;
         public static double Brightness
         {
-            set { _brightness = value; BrightnessChanged?.Invoke(_brightness); }
+            set { _brightness = Math.Max(0.1, value); }
             get { return _brightness; }
         }
     }
