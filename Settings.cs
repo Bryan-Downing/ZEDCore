@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using rpi_rgb_led_matrix_sharp;
+using System;
 
-namespace ZED
+namespace ZED.Common
 {
     internal static class Settings
     {
@@ -14,5 +11,17 @@ namespace ZED
             set { _brightness = Math.Max(0.1, value); }
             get { return _brightness; }
         }
+
+        public static readonly string MainMenuSceneName = "Main Menu";
+
+        public static readonly RGBLedMatrixOptions DefaultOptions = new RGBLedMatrixOptions()
+        {
+            HardwareMapping = "regular",
+            Rows = 32,
+            Cols = 64,
+            ChainLength = 3,
+            Parallel = 2,
+            GpioSlowdown = 2
+        };
     }
 }

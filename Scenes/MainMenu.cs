@@ -1,16 +1,7 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using static ZED.Common;
-using System.Diagnostics;
+﻿using ZED.Common;
 using ZED.GUI;
-using ZED.Objects;
 using ZED.Input;
-using System.Numerics;
+using ZED.Objects;
 
 namespace ZED.Scenes
 {
@@ -18,7 +9,7 @@ namespace ZED.Scenes
     {
         private StarField _starField;
 
-        public MainMenu() : base(MainMenuSceneName)
+        public MainMenu() : base(Settings.MainMenuSceneName)
         {
         }
 
@@ -54,7 +45,7 @@ namespace ZED.Scenes
             {
                 OnPress = () => { Program.IsClosing = true; Close(); }
             });
-            
+
             sceneMenu.Header = new Text(0, 7, "- scenes -", Colors.White, Fonts.FiveBySeven);
 
             sceneMenu.TextOptions.Add(new SelectableText(0, 17, "game of life", Colors.White, Fonts.FiveBySeven)

@@ -1,14 +1,12 @@
-﻿using ZED.Scenes;
-using rpi_rgb_led_matrix_sharp;
-using System;
-using ZED.Display;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
-using System.Threading;
+using ZED.Common;
+using ZED.Display;
+using ZED.Scenes;
 
 namespace ZED
 {
-    class Program
+    internal class Program
     {
         public static bool IsClosing = false;
         public static bool DebugMode = true;
@@ -16,19 +14,22 @@ namespace ZED
 
         public static Random Random = new Random();
 
-        static int Main(string[] args)
+        private static int Main(string[] args)
         {
             Console.WriteLine();
             Console.WriteLine($"Welcome to ZEDEngine!");
             Console.WriteLine("Press SHIFT+Q at any time to exit.");
 
-            if (DebugMode) Console.WriteLine("*** WARNING: Debug mode is enabled. ***");
+            if (DebugMode)
+            {
+                Console.WriteLine("*** WARNING: Debug mode is enabled. ***");
+            }
 
             Console.WriteLine();
 
             Task.Run(() => Common.Fonts.Init()); // Start loading the font resources on another thread.
 
-            using (var matrix = new LEDMatrixDisplay(Common.DefaultOptions))
+            using (var matrix = new LEDMatrixDisplay(Settings.DefaultOptions))
             {
                 using (InputManager inputManager = new InputManager())
                 {
@@ -38,7 +39,7 @@ namespace ZED
 
             Close();
 
-            return 0; 
+            return 0;
         }
 
         public static void Close()

@@ -1,9 +1,5 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ZED.Display;
 
 namespace ZED.GUI
@@ -16,7 +12,7 @@ namespace ZED.GUI
         public SelectableText SelectedElement
         {
             get { return TextOptions.ElementAtOrDefault(_selectedElementIndex); }
-            set 
+            set
             {
                 _selectedElementIndex = TextOptions.IndexOf(value);
             }
@@ -26,7 +22,7 @@ namespace ZED.GUI
         public int SelectedElementIndex
         {
             get { return _selectedElementIndex; }
-            set 
+            set
             {
                 if (SelectedElement != null)
                 {

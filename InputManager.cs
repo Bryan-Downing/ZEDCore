@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ZED.Input;
@@ -161,7 +160,7 @@ namespace ZED
 
         private void OnAxisChanged(object sender, AxisEventArgs e)
         {
-            try 
+            try
             {
                 AxisChanged?.Invoke(sender, e);
             }

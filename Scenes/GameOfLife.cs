@@ -1,12 +1,8 @@
 ﻿using rpi_rgb_led_matrix_sharp;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using ZED.Input;
+using ZED.Common;
 
 namespace ZED.Scenes
 {
@@ -68,7 +64,7 @@ namespace ZED.Scenes
 
             int cellsAlive = 0;
 
-            for (int x = 0; x < Display.Width; x++) 
+            for (int x = 0; x < Display.Width; x++)
             {
                 for (int y = 0; y < Display.Height; y++)
                 {
@@ -86,7 +82,7 @@ namespace ZED.Scenes
                         _gridColors[x][y].Color = color;
                         _gridColors[x][y].Age = 0;
                         _gridColors[x][y].LifeSpan = GetLifeSpan();
-                        
+
                         cellsAlive++;
                     }
 
@@ -156,11 +152,17 @@ namespace ZED.Scenes
                         int num = NumAliveNeighbours(x, y);
                         if (_grid[x][y])
                         {
-                            if (num < 2 || num > 3) _newGrid[x][y] = false;
+                            if (num < 2 || num > 3)
+                            {
+                                _newGrid[x][y] = false;
+                            }
                         }
                         else
                         {
-                            if (num == 3) _newGrid[x][y] = true;
+                            if (num == 3)
+                            {
+                                _newGrid[x][y] = true;
+                            }
                         }
                     }
                 }

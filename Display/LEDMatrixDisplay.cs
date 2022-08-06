@@ -1,9 +1,7 @@
 ﻿using rpi_rgb_led_matrix_sharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ZED.Common;
 
 namespace ZED.Display
 {
@@ -74,7 +72,7 @@ namespace ZED.Display
             }
         }
 
-        private Dictionary<System.Drawing.Bitmap, (int Width, int Height, int Stride, byte[] Data)> _cachedBitmaps = 
+        private Dictionary<System.Drawing.Bitmap, (int Width, int Height, int Stride, byte[] Data)> _cachedBitmaps =
             new Dictionary<System.Drawing.Bitmap, (int Width, int Height, int Stride, byte[] Data)>();
 
         public void DrawImage(int x, int y, System.Drawing.Bitmap image)
@@ -193,9 +191,13 @@ namespace ZED.Display
             dy = Math.Abs(y2 - y1);
 
             if (dx >= dy)
+            {
                 step = dx;
+            }
             else
+            {
                 step = dy;
+            }
 
             dx = dx / step;
             dy = dy / step;

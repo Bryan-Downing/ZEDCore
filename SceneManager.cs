@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZED.Scenes;
-using rpi_rgb_led_matrix_sharp;
-using ZED.Display;
-
-namespace ZED
+﻿namespace ZED
 {
     internal class SceneManager
     {

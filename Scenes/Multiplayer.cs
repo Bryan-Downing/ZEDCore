@@ -2,11 +2,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+using ZED.Common;
 using ZED.Input;
 using ZED.Objects;
 
@@ -258,17 +256,20 @@ namespace ZED.Scenes
 
             public int Health
             {
-                get 
-                { 
-                    return _pixelMask.Sum(col => 
-                    { 
-                        int sum = 0; 
-                        foreach (bool pixel in col) 
-                        { 
-                            if (pixel) sum++; 
-                        } 
-                        return sum; 
-                    }); 
+                get
+                {
+                    return _pixelMask.Sum(col =>
+                    {
+                        int sum = 0;
+                        foreach (bool pixel in col)
+                        {
+                            if (pixel)
+                            {
+                                sum++;
+                            }
+                        }
+                        return sum;
+                    });
                 }
             }
 
@@ -328,7 +329,7 @@ namespace ZED.Scenes
                 {
                     _msAccumulatorX = 0;
                 }
-                else 
+                else
                 {
                     double effectiveVelocityX = VelocityY == 0 ? VelocityX : VelocityX / 2;
 

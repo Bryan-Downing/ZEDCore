@@ -1,9 +1,5 @@
 ﻿using rpi_rgb_led_matrix_sharp;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ZED.Display;
 
 namespace ZED.GUI

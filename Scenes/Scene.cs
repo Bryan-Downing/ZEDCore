@@ -1,14 +1,8 @@
-﻿using ZED.Scenes;
-using rpi_rgb_led_matrix_sharp;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZED.Input;
-using System.Runtime.CompilerServices;
 using ZED.Display;
+using ZED.Input;
+using ZED.Scenes;
 
 namespace ZED
 {
@@ -47,7 +41,7 @@ namespace ZED
 
         private System.Drawing.Bitmap _errorImage = Properties.Resources.Error;
 
-        public Scene (string name = "Unknown Scene")
+        public Scene(string name = "Unknown Scene")
         {
             Name = name;
         }
@@ -90,7 +84,7 @@ namespace ZED
         {
 
         }
-        
+
         public void Run(IDisplay display)
         {
             lock (SceneManager.SceneChangingLock)

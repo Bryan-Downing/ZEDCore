@@ -1,15 +1,8 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using static ZED.Common;
-using System.Diagnostics;
+﻿using System;
+using ZED.Common;
 using ZED.GUI;
-using ZED.Objects;
 using ZED.Input;
+using ZED.Objects;
 
 namespace ZED.Scenes
 {
@@ -70,7 +63,7 @@ namespace ZED.Scenes
             {
                 OnPress = () =>
                 {
-                    if (_fromScene.Name == Common.MainMenuSceneName)
+                    if (_fromScene.Name == Settings.MainMenuSceneName)
                     {
                         Program.IsClosing = true;
                     }
@@ -78,7 +71,7 @@ namespace ZED.Scenes
                     {
                         SceneManager.ClosingToMainMenu = true;
                     }
-                    
+
                     Close();
                 }
             });

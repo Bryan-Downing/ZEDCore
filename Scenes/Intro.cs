@@ -1,12 +1,7 @@
 ﻿using rpi_rgb_led_matrix_sharp;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ZED.Common;
 using ZED.Input;
-using static ZED.Common;
 
 namespace ZED.Scenes
 {
