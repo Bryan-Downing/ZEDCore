@@ -15,16 +15,31 @@ namespace ZED.Scenes
 {
     internal class OptionsMenu : Menu
     {
+        private Scene _fromScene;
         private StarField _starField;
 
-        public OptionsMenu() : base("Options Menu")
+        public OptionsMenu(Scene fromScene) : base("Options Menu")
         {
-            _isPausable = false;
+            IsPausable = false;
+            _fromScene = fromScene;
+        }
+
+        protected override void OnButtonDown(object sender, ButtonEventArgs e)
+        {
+            if (e.Button == Button.B)
+            {
+                if (CurrentPage == MainPage)
+                {
+                    Close();
+                }
+            }
+
+            base.OnButtonDown(sender, e);
         }
 
         protected override void Setup()
         {
-            _starField = new StarField(_display, 50);
+            _starField = new StarField(Display);
 
             TextMenu optionsMenu = new TextMenu();
             TextMenu controlsMenu = new TextMenu();
@@ -46,12 +61,25 @@ namespace ZED.Scenes
                 OnRight = () => { Settings.Brightness = Math.Min(1, Settings.Brightness + 0.05); }
             });
 
-            optionsMenu.TextOptions.Add(new SelectableText(0, 40, "quit", Common.Colors.White, Fonts.FiveBySeven)
+            optionsMenu.TextOptions.Add(new SelectableText(0, 41, "show fps", Common.Colors.White, Fonts.FiveBySeven)
+            {
+                OnPress = () => { SceneManager.DisplayFPS = !SceneManager.DisplayFPS; }
+            });
+
+            optionsMenu.TextOptions.Add(new SelectableText(0, 59, "quit", Common.Colors.White, Fonts.FiveBySeven)
             {
                 OnPress = () =>
                 {
+                    if (_fromScene.Name == Common.MainMenuSceneName)
+                    {
+                        Program.IsClosing = true;
+                    }
+                    else
+                    {
+                        SceneManager.ClosingToMainMenu = true;
+                    }
+                    
                     Close();
-                    SceneManager.Instance.CurrentScene?.Close();
                 }
             });
 
@@ -59,9 +87,9 @@ namespace ZED.Scenes
 
             controlsMenu.Header = new Text(0, 7, "- controls -", Common.Colors.White, Fonts.FiveBySeven);
 
-            controlsMenu.TextOptions.Add(new SelectableText(0, 17, "option", Colors.White, Fonts.FiveBySeven)
+            controlsMenu.TextOptions.Add(new SelectableText(0, 17, "assign controllers", Colors.White, Fonts.FiveBySeven)
             {
-                
+                OnPress = () => { RunNestedScene(new ControllerAssignment()); }
             });
 
             controlsMenu.TextOptions.Add(new SelectableText(0, 25, "back", Colors.White, Fonts.FiveBySeven)
@@ -76,22 +104,19 @@ namespace ZED.Scenes
 
         protected override void PrimaryExecutionMethod()
         {
-            //while (!_sceneClosing)
+            Display.Clear();
+
+            _starField.Draw(LastFrameTicks);
+
+            long scaledFrameCount = FrameCount / 10;
+
+            CurrentPage.Header.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + 180, 1, 0.9);
+
+            int colorOffset = 0;
+            foreach (var option in CurrentPage.TextOptions)
             {
-                _display.Clear();
-
-                _starField.Draw(_frameCount);
-
-                long scaledFrameCount = _frameCount / 10;
-
-                CurrentPage.Header.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + 180, 1, 0.9);
-
-                int colorOffset = 0;
-                foreach (var option in CurrentPage.TextOptions)
-                {
-                    option.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + colorOffset, 1, 0.8);
-                    colorOffset += 10;
-                }
+                option.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + colorOffset, 1, 0.8);
+                colorOffset += 10;
             }
         }
     }

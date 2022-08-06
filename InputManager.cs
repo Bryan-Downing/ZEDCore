@@ -11,6 +11,7 @@ namespace ZED
 {
     internal enum PlayerID
     {
+        None,
         One,
         Two,
         Three,
@@ -21,20 +22,20 @@ namespace ZED
     {
         public static InputManager Instance;
 
-        public Dictionary<PlayerID, InputDevice> PlayerToDeviceMap = new Dictionary<PlayerID, InputDevice>()
-        {
-            { PlayerID.One, null },
-            { PlayerID.Two, null },
-            { PlayerID.Three, null },
-            { PlayerID.Four, null }
-        };
-
         public readonly int MaxPlayers = 4;
 
         public event EventHandler<ButtonEventArgs> ButtonChanged;
         public event EventHandler<AxisEventArgs> AxisChanged;
 
         public List<InputDevice> InputDevices = new List<InputDevice>();
+
+        private Dictionary<PlayerID, InputDevice> _playerToDeviceMap = new Dictionary<PlayerID, InputDevice>()
+        {
+            { PlayerID.One, null },
+            { PlayerID.Two, null },
+            { PlayerID.Three, null },
+            { PlayerID.Four, null }
+        };
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -63,6 +64,7 @@ namespace ZED
             Task.Run(() => ControllerSetupThread_DoWork(_cancellationTokenSource.Token));
         }
 
+        // TODO: This should probably handle controller disconnection as well (if the /dev/input files are deleted, at least.)
         private void ControllerSetupThread_DoWork(CancellationToken token)
         {
             while (!token.IsCancellationRequested && !Program.IsClosing)
@@ -89,7 +91,7 @@ namespace ZED
 
                         Console.WriteLine($"Gamepad [{joystickInputFile}] detected.");
 
-                        foreach (var pair in PlayerToDeviceMap)
+                        foreach (var pair in _playerToDeviceMap)
                         {
                             if (pair.Value == null)
                             {
@@ -109,11 +111,40 @@ namespace ZED
             }
         }
 
-        private void SetInputDeviceForPlayer(PlayerID playerID, InputDevice inputDevice)
+        public PlayerID GetNextUnassignedPlayerID()
         {
-            Console.WriteLine($"Assigning device [{inputDevice.DeviceID}] to Player [{playerID}].");
+            return GetPlayerIDFromDevice(null);
+        }
 
-            PlayerToDeviceMap[playerID] = inputDevice;
+        public PlayerID GetPlayerIDFromDevice(InputDevice device)
+        {
+            PlayerID playerID = PlayerID.None;
+
+            foreach (var pair in _playerToDeviceMap)
+            {
+                if (pair.Value == device)
+                {
+                    playerID = pair.Key;
+                    break;
+                }
+            }
+
+            return playerID;
+        }
+
+        public InputDevice GetDeviceFromPlayerID(PlayerID playerID)
+        {
+            InputDevice device = null;
+            _playerToDeviceMap.TryGetValue(playerID, out device);
+
+            return device;
+        }
+
+        public void SetInputDeviceForPlayer(PlayerID playerID, InputDevice inputDevice)
+        {
+            Console.WriteLine($"Assigning device [{inputDevice?.DeviceID}] to Player [{playerID}].");
+
+            _playerToDeviceMap[playerID] = inputDevice;
         }
 
         private void OnButtonChanged(object sender, ButtonEventArgs e)

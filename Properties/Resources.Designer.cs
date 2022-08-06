@@ -63,6 +63,16 @@ namespace ZED.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Controller {
+            get {
+                object obj = ResourceManager.GetObject("Controller", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Error {
             get {
                 object obj = ResourceManager.GetObject("Error", resourceCulture);
@@ -116,6 +126,16 @@ namespace ZED.Properties {
         internal static byte[] Font_6x10 {
             get {
                 object obj = ResourceManager.GetObject("Font_6x10", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Font_6x12 {
+            get {
+                object obj = ResourceManager.GetObject("Font_6x12", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -177,6 +197,26 @@ namespace ZED.Properties {
             get {
                 object obj = ResourceManager.GetObject("Font_9x18", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Heart {
+            get {
+                object obj = ResourceManager.GetObject("Heart", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Skull {
+            get {
+                object obj = ResourceManager.GetObject("Skull", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

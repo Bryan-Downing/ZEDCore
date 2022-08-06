@@ -12,6 +12,8 @@ namespace ZED.Scenes
 {
     internal class Intro : Scene
     {
+        private Color[,] _pixelColors;
+
         private enum Directions
         {
             Right = 0,
@@ -24,6 +26,11 @@ namespace ZED.Scenes
         private int _curX = 0, _curY = 0;
         private int _leftIters = 0, _rightIters = 0, _upIters = 0, _downIters = 0;
 
+        private GUI.Text _logoText;
+        private DateTime? _finishedDrawingTime = null;
+
+        private double _holdSeconds = 2;
+
         public Intro() : base("Intro")
         {
         }
@@ -35,75 +42,138 @@ namespace ZED.Scenes
 
         protected override void Setup()
         {
+            _pixelColors = new Color[Display.Width, Display.Height];
+
+            _pixelColors.Initialize();
+
+            _logoText = new GUI.Text(0, Display.Height / 2, "ZED", Colors.Black, Fonts.NineByEighteen);
+
+            NextScene = new MainMenu();
             _direction = Directions.Right;
-            _display.Clear();
+            Display.Clear();
         }
 
         protected override void PrimaryExecutionMethod()
         {
-            //while (!_sceneClosing)
+            Display.Clear();
+
+            for (int i = 0; i < Math.Max(150 - FrameCount, 8); i++)
             {
-                for (int i = 0; i < _frameCount; i++)
+                if (_upIters + _downIters >= Display.Height)
                 {
-                    _display.SetPixel(_curX, _curY, ColorExtensions.ColorFromHSV(_curX + _curY));
-
-                    switch (_direction)
+                    if (_finishedDrawingTime == null)
                     {
-                        case Directions.Right:
-                            if (_curX >= _display.Width - _rightIters - 1)
-                            {
-                                _direction = Directions.Down;
-                                _rightIters++;
-                            }
-                            else
-                            {
-                                _curX++;
-                            }
-                            break;
-                        case Directions.Down:
-                            if (_curY >= _display.Height - _downIters - 1)
-                            {
-                                _direction = Directions.Left;
-                                _downIters++;
-                            }
-                            else
-                            {
-                                _curY++;
-                            }
-                            break;
-                        case Directions.Left:
-                            if (_curX <= _leftIters + 1)
-                            {
-                                _direction = Directions.Up;
-                                _leftIters++;
-                            }
-                            else
-                            {
-                                _curX--;
-                            }
-                            break;
-                        case Directions.Up:
-                            if (_curY <= _upIters + 1)
-                            {
-                                _direction = Directions.Right;
-                                _upIters++;
-                            }
-                            else
-                            {
-                                _curY--;
-                            }
-                            break;
+                        _finishedDrawingTime = DateTime.Now;
                     }
-
-
-                    if (_upIters + _downIters >= _display.Height)
-                    {
-                        break;
-                    }
+                    break;
                 }
 
-                if (_upIters + _downIters >= _display.Height)
+                _pixelColors[_curX, _curY] = ColorExtensions.ColorFromHSV((_curX + _curY) * 2);
+
+                switch (_direction)
                 {
+                    case Directions.Right:
+                        if (_curX >= Display.Width - _rightIters - 1)
+                        {
+                            _direction = Directions.Down;
+                            _rightIters++;
+                        }
+                        else
+                        {
+                            _curX++;
+                        }
+                        break;
+                    case Directions.Down:
+                        if (_curY >= Display.Height - _downIters - 1)
+                        {
+                            _direction = Directions.Left;
+                            _downIters++;
+                        }
+                        else
+                        {
+                            _curY++;
+                        }
+                        break;
+                    case Directions.Left:
+                        if (_curX <= _leftIters + 1)
+                        {
+                            _direction = Directions.Up;
+                            _leftIters++;
+                        }
+                        else
+                        {
+                            _curX--;
+                        }
+                        break;
+                    case Directions.Up:
+                        if (_curY <= _upIters + 1)
+                        {
+                            _direction = Directions.Right;
+                            _upIters++;
+                        }
+                        else
+                        {
+                            _curY--;
+                        }
+                        break;
+                }
+            }
+
+            for (int x = 0; x < Display.Width; x++)
+            {
+                for (int y = 0; y < Display.Height; y++)
+                {
+                    if (_pixelColors[x, y].R != 0 ||
+                        _pixelColors[x, y].G != 0 ||
+                        _pixelColors[x, y].B != 0)
+                    {
+                        Display.SetPixel(x, y, _pixelColors[x, y]);
+                    }
+                }
+            }
+
+            var fontSize = Fonts.GetFontSize(Fonts.FiveBySeven);
+
+            int curY = fontSize.y;
+            int curX = 0;
+
+            var text = new GUI.Text(curX, curY, "ZED", Colors.Black, Fonts.FiveBySeven);
+
+            for (int i = 0; i <= Display.Width / (fontSize.x * 3); i++)
+            {
+                for (int j = 0; j <= Display.Height / (fontSize.y - 1); j++)
+                {
+                    text.TextColor = ColorExtensions.ColorFromHSV(90 + (curX + curY * 2));
+                    text.X = curX;
+                    text.Y = curY;
+                    text.Draw(Display, false);
+                    curY += fontSize.y - 1;
+                }
+
+                curY = 5;
+                curX += fontSize.x * 3;
+            }
+
+            for (int x = 0; x < Display.Width; x++)
+            {
+                for (int y = 0; y < Display.Height; y++)
+                {
+                    if (_pixelColors[x, y].R == 0 &&
+                        _pixelColors[x, y].G == 0 &&
+                        _pixelColors[x, y].B == 0)
+                    {
+                        Display.SetPixel(x, y, Colors.Black);
+                    }
+                }
+            }
+
+            if (_finishedDrawingTime != null)
+            {
+                Settings.Brightness = Math.Max(0, 1 - (DateTime.Now - _finishedDrawingTime.Value).TotalMilliseconds / (_holdSeconds * 1000));
+
+                if (DateTime.Now > _finishedDrawingTime.Value.AddSeconds(_holdSeconds))
+                {
+                    Settings.Brightness = 1;
                     Close();
                 }
             }

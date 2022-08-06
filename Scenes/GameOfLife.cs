@@ -29,39 +29,27 @@ namespace ZED.Scenes
 
         }
 
-        protected override void OnButtonDown(object sender, ButtonEventArgs e)
-        {
-            if (e.Button == Button.B)
-            {
-                Close();
-            }
-            else if (e.Button == Button.Start)
-            {
-                Pause();
-            }
-        }
-
         protected override void Setup()
         {
-            _grid = new BitArray[_display.Width];
+            _grid = new BitArray[Display.Width];
 
-            for (int col = 0; col < _display.Width; col++)
+            for (int col = 0; col < Display.Width; col++)
             {
-                _grid[col] = new BitArray(_display.Height);
+                _grid[col] = new BitArray(Display.Height);
             }
 
-            _newGrid = new BitArray[_display.Width];
+            _newGrid = new BitArray[Display.Width];
 
-            for (int col = 0; col < _display.Width; col++)
+            for (int col = 0; col < Display.Width; col++)
             {
-                _newGrid[col] = new BitArray(_display.Height);
+                _newGrid[col] = new BitArray(Display.Height);
             }
 
             _gridColors = new List<List<GridColor>>();
-            for (int x = 0; x < _display.Width; x++)
+            for (int x = 0; x < Display.Width; x++)
             {
                 _gridColors.Add(new List<GridColor>());
-                for (int y = 0; y < _display.Height; y++)
+                for (int y = 0; y < Display.Height; y++)
                 {
                     _gridColors[x].Add(new GridColor() { Color = Common.Colors.Black, Age = 0, LifeSpan = int.MaxValue });
                 }
@@ -72,46 +60,43 @@ namespace ZED.Scenes
 
         protected override void PrimaryExecutionMethod()
         {
-            //while (!_sceneClosing)
+            Display.Clear();
+
+            UpdateValues();
+
+            Color color = ColorExtensions.ColorFromHSV(FrameCount, 1, 0.8);
+
+            int cellsAlive = 0;
+
+            for (int x = 0; x < Display.Width; x++) 
             {
-                _display.Clear();
-
-                UpdateValues();
-
-                Color color = ColorExtensions.ColorFromHSV(_frameCount, 1, 0.8);
-
-                int cellsAlive = 0;
-
-                for (int x = 0; x < _display.Width; x++) 
+                for (int y = 0; y < Display.Height; y++)
                 {
-                    for (int y = 0; y < _display.Height; y++)
+                    _gridColors[x][y].Age++;
+
+                    if (_gridColors[x][y].Age > _gridColors[x][y].LifeSpan)
                     {
-                        _gridColors[x][y].Age++;
-
-                        if (_gridColors[x][y].Age > _gridColors[x][y].LifeSpan)
-                        {
-                            _gridColors[x][y].Color = Common.Colors.Black;
-                            _gridColors[x][y].Age = 0;
-                            _gridColors[x][y].LifeSpan = int.MaxValue;
-                        }
-
-                        if (_grid[x][y])
-                        {
-                            _gridColors[x][y].Color = color;
-                            _gridColors[x][y].Age = 0;
-                            _gridColors[x][y].LifeSpan = GetLifeSpan();
-                            
-                            cellsAlive++;
-                        }
-
-                        _display.SetPixel(x, y, _gridColors[x][y].Color);
+                        _gridColors[x][y].Color = Common.Colors.Black;
+                        _gridColors[x][y].Age = 0;
+                        _gridColors[x][y].LifeSpan = int.MaxValue;
                     }
-                }
 
-                if (_frameCount % 5 == 0)
-                {
-                    RandomizeGrid(0.025);
+                    if (_grid[x][y])
+                    {
+                        _gridColors[x][y].Color = color;
+                        _gridColors[x][y].Age = 0;
+                        _gridColors[x][y].LifeSpan = GetLifeSpan();
+                        
+                        cellsAlive++;
+                    }
+
+                    Display.SetPixel(x, y, _gridColors[x][y].Color);
                 }
+            }
+
+            if (FrameCount % 5 == 0)
+            {
+                RandomizeGrid(0.025);
             }
         }
 
@@ -122,9 +107,9 @@ namespace ZED.Scenes
 
         private void RandomizeGrid(double chance = 0.5)
         {
-            for (int x = 0; x < _display.Width; x++)
+            for (int x = 0; x < Display.Width; x++)
             {
-                for (int y = 0; y < _display.Height; y++)
+                for (int y = 0; y < Display.Height; y++)
                 {
                     if (!_grid[x][y])
                     {
@@ -139,14 +124,14 @@ namespace ZED.Scenes
             int num = 0;
 
             // Edges are connected (torus)
-            num += _grid[(x - 1 + _display.Width) % _display.Width][(y - 1 + _display.Height) % _display.Height] ? 1 : 0;
-            num += _grid[(x - 1 + _display.Width) % _display.Width][y] ? 1 : 0;
-            num += _grid[(x - 1 + _display.Width) % _display.Width][(y + 1) % _display.Height] ? 1 : 0;
-            num += _grid[(x + 1) % _display.Width][(y - 1 + _display.Height) % _display.Height] ? 1 : 0;
-            num += _grid[(x + 1) % _display.Width][y] ? 1 : 0;
-            num += _grid[(x + 1) % _display.Width][(y + 1) % _display.Height] ? 1 : 0;
-            num += _grid[x][(y - 1 + _display.Height) % _display.Height] ? 1 : 0;
-            num += _grid[x][(y + 1) % _display.Height] ? 1 : 0;
+            num += _grid[(x - 1 + Display.Width) % Display.Width][(y - 1 + Display.Height) % Display.Height] ? 1 : 0;
+            num += _grid[(x - 1 + Display.Width) % Display.Width][y] ? 1 : 0;
+            num += _grid[(x - 1 + Display.Width) % Display.Width][(y + 1) % Display.Height] ? 1 : 0;
+            num += _grid[(x + 1) % Display.Width][(y - 1 + Display.Height) % Display.Height] ? 1 : 0;
+            num += _grid[(x + 1) % Display.Width][y] ? 1 : 0;
+            num += _grid[(x + 1) % Display.Width][(y + 1) % Display.Height] ? 1 : 0;
+            num += _grid[x][(y - 1 + Display.Height) % Display.Height] ? 1 : 0;
+            num += _grid[x][(y + 1) % Display.Height] ? 1 : 0;
 
             return num;
         }
@@ -162,11 +147,11 @@ namespace ZED.Scenes
             }
 
             // update newValues based on values
-            Parallel.For(0, _display.Width, (x) =>
+            Parallel.For(0, Display.Width, (x) =>
             {
                 //for (int x = 0; x < _display.Width; ++x)
                 {
-                    for (int y = 0; y < _display.Height; ++y)
+                    for (int y = 0; y < Display.Height; ++y)
                     {
                         int num = NumAliveNeighbours(x, y);
                         if (_grid[x][y])

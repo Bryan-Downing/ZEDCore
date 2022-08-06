@@ -10,23 +10,42 @@ namespace ZED.Objects
 {
     internal class StarField
     {
-        private List<Star> _stars;
+        public List<Star> Stars;
 
-        public StarField(IDisplay display, int numStars)
+        private IDisplay _display;
+
+        public StarField(IDisplay display, int numStars = 50)
         {
-            _stars = new List<Star>();
-            for (int i = 0; i < numStars; i++)
+            _display = display;
+
+            Stars = new List<Star>();
+
+            AddStars(numStars);
+        }
+
+        public void Draw(long lastFrameTicks)
+        {
+            foreach (Star star in Stars)
             {
-                _stars.Add(new Star(display, ColorExtensions.ColorFromHSV(Program.Random.Next(360))));
+                star.Draw(lastFrameTicks);
             }
         }
 
-        public void Draw(long frameCount)
+        public Star AddStar()
         {
-            foreach (Star star in _stars)
+            Star star = new Star(_display, ColorExtensions.ColorFromHSV(Program.Random.Next(360)));
+            Stars.Add(star);
+            return star;
+        }
+
+        public List<Star> AddStars(int numStars)
+        {
+            List<Star> rtn = new List<Star>();
+            for (int i = 0; i < numStars; i++)
             {
-                star.Draw(frameCount);
+                rtn.Add(AddStar());
             }
+            return rtn;
         }
     }
 
@@ -35,34 +54,80 @@ namespace ZED.Objects
         public int X;
         public int Y;
 
-        public Color Color;
-        public Color OriginalColor;
+        public double MinVelocityY = 10;
+        public double MaxVelocityY = 25;
+               
+        public double MinVelocityX = 1;
+        public double MaxVelocityX = 5;
 
-        private int _fallSpeed;
-        private int _xVelocity;
+        private int _hue = 0;
+        public int Hue
+        {
+            get { return _hue; }
+            set { _hue = value; Color = ColorExtensions.ColorFromHSV(value); }
+        }
+
+        public Color Color;
+
+        private double _yVelocity;
+        private double _xVelocity;
 
         private IDisplay _display;
 
         public Star(IDisplay display, Color color)
         {
             Color = color;
-            OriginalColor = color;
 
             _display = display;
 
             InitPosition();
         }
 
-        private void InitPosition()
+        public void InitPosition()
         {
             X = Program.Random.Next(_display.Width);
             Y = -Program.Random.Next(30);
-            _fallSpeed = Program.Random.Next(20, 100);
-            _xVelocity = Program.Random.Next(500, 1000) * (Program.Random.Next(2) == 0 ? 1 : -1);
+            _xVelocity = (MinVelocityX + Program.Random.NextDouble() * (MaxVelocityX - MinVelocityX)) * (Program.Random.Next() % 2 == 0 ? 1 : -1);
+            _yVelocity = MinVelocityY + Program.Random.NextDouble() * (MaxVelocityY - MinVelocityY);
         }
 
-        public void Draw(long frameCount)
+        private double _msAccumulatorX = 0;
+        private double _msAccumulatorY = 0;
+        public void Draw(long lastFrameTicks)
         {
+            _msAccumulatorX += lastFrameTicks / (double)TimeSpan.TicksPerMillisecond;
+            _msAccumulatorY += lastFrameTicks / (double)TimeSpan.TicksPerMillisecond;
+
+            if (_xVelocity != 0)
+            {
+                int msPerMove = (int)(1000 / Math.Abs(_xVelocity));
+
+                if (_msAccumulatorX >= msPerMove)
+                {
+                    _msAccumulatorX -= msPerMove;
+                    X += _xVelocity < 0 ? -1 : 1;
+                }
+            }
+            else
+            {
+                _msAccumulatorX = 0;
+            }
+
+            if (_yVelocity != 0)
+            {
+                int msPerMove = (int)(1000 / Math.Abs(_yVelocity));
+
+                if (_msAccumulatorY >= msPerMove)
+                {
+                    _msAccumulatorY -= msPerMove;
+                    Y += _yVelocity < 0 ? -1 : 1;
+                }
+            }
+            else
+            {
+                _msAccumulatorY = 0;
+            }
+
             if (Y > _display.Height)
             {
                 InitPosition();
@@ -70,15 +135,6 @@ namespace ZED.Objects
             else
             {
                 _display.SetPixel(X, Y, Color);
-            }
-
-            if (frameCount % _xVelocity == 0)
-            {
-                X += _xVelocity > 0 ? 1 : -1;
-            }
-            if (frameCount % _fallSpeed == 0)
-            {
-                Y++;
             }
         }
     }

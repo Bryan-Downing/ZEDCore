@@ -12,7 +12,7 @@ namespace ZED
 {
     internal class Common
     {
-        public static readonly MainMenu MainMenuScene = new MainMenu();
+        public static readonly string MainMenuSceneName = "Main Menu";
 
         private static readonly string _mainDir = @"/home/pi/rpi-rgb-led-matrix/";
         private static readonly string _fontDir = Path.Combine(_mainDir, "fonts");

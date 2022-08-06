@@ -74,31 +74,42 @@ namespace ZED.Display
             }
         }
 
+        private Dictionary<System.Drawing.Bitmap, (int Width, int Height, int Stride, byte[] Data)> _cachedBitmaps = 
+            new Dictionary<System.Drawing.Bitmap, (int Width, int Height, int Stride, byte[] Data)>();
+
         public void DrawImage(int x, int y, System.Drawing.Bitmap image)
         {
             if (image.PixelFormat != System.Drawing.Imaging.PixelFormat.Format24bppRgb)
             {
-                throw new NotSupportedException($"Unsupported pixel format: {image.PixelFormat}");
+                throw new FormatException($"Unsupported pixel format: {image.PixelFormat}");
             }
 
-            var imageData = image.LockBits(new System.Drawing.Rectangle(0, 0, image.Width, image.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, image.PixelFormat);
-
-            IntPtr ptr = imageData.Scan0;
-            int numBytes = imageData.Stride * imageData.Height;
-
-            var bytes = new byte[numBytes];
-            System.Runtime.InteropServices.Marshal.Copy(ptr, bytes, 0, numBytes);
-
-            image.UnlockBits(imageData);
-
-            for (int imgY = 0; imgY < imageData.Height; imgY++)
+            if (!_cachedBitmaps.ContainsKey(image))
             {
-                for (int imgX = 0; imgX < imageData.Stride; imgX += 3)
+                var imageData = image.LockBits(new System.Drawing.Rectangle(0, 0, image.Width, image.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, image.PixelFormat);
+
+                IntPtr ptr = imageData.Scan0;
+                int numBytes = imageData.Stride * imageData.Height;
+
+                var bytes = new byte[numBytes];
+
+                System.Runtime.InteropServices.Marshal.Copy(ptr, bytes, 0, numBytes);
+
+                image.UnlockBits(imageData);
+
+                _cachedBitmaps.Add(image, (imageData.Width, imageData.Height, imageData.Stride, bytes));
+            }
+
+            var cachedImage = _cachedBitmaps[image];
+
+            for (int imgY = 0; imgY < cachedImage.Height; imgY++)
+            {
+                for (int imgX = 0; imgX < cachedImage.Width; imgX++)
                 {
-                    byte r = bytes[imgX + 2 + imgY * imageData.Stride];
-                    byte g = bytes[imgX + 1 + imgY * imageData.Stride];
-                    byte b = bytes[imgX + 0 + imgY * imageData.Stride];
-                    _canvas.SetPixel(x + (imgX / 3), y + imgY, new Color(r, g, b).Mult(Settings.Brightness));
+                    byte r = cachedImage.Data[(imgX * 3) + 2 + imgY * cachedImage.Stride];
+                    byte g = cachedImage.Data[(imgX * 3) + 1 + imgY * cachedImage.Stride];
+                    byte b = cachedImage.Data[(imgX * 3) + 0 + imgY * cachedImage.Stride];
+                    _canvas.SetPixel(x + imgX, y + imgY, new Color(r, g, b).Mult(Settings.Brightness));
                 }
             }
         }
@@ -121,6 +132,83 @@ namespace ZED.Display
         public void Dispose()
         {
             _matrix?.Dispose();
+        }
+
+        public void DrawCircle(int cx, int cy, int radius, Color color, bool filled = false)
+        {
+            // (Potentially bad) implementation of the Midpoint algorithm.
+
+            int error = -radius;
+            int x = radius;
+            int y = 0;
+
+            while (x >= y)
+            {
+                int lastY = y;
+
+                error += y;
+                y++;
+                error += y;
+
+                DrawCirclePoints(cx, cy, x, lastY, color, filled);
+
+                if (error >= 0)
+                {
+                    if (x != lastY)
+                    {
+                        DrawCirclePoints(cx, cy, lastY, x, color, filled);
+                    }
+
+                    error -= x;
+                    x--;
+                    error -= x;
+                }
+            }
+        }
+
+        private void DrawCirclePoints(int cx, int cy, int x, int y, Color color, bool filled)
+        {
+            if (filled)
+            {
+                DrawLine(cx - x, cy + y, cx + x, cy + y, color);
+                if (y != 0)
+                {
+                    DrawLine(cx - x, cy - y, cx + x, cy - y, color);
+                }
+            }
+            else
+            {
+                SetPixel(cx - x, cy - y, color);
+                SetPixel(cx + x, cy - y, color);
+                SetPixel(cx - x, cy + y, color);
+                SetPixel(cx + x, cy + y, color);
+            }
+        }
+
+        public void DrawLine(int x1, int y1, int x2, int y2, Color color)
+        {
+            float x, y, dx, dy, step;
+
+            dx = Math.Abs(x2 - x1);
+            dy = Math.Abs(y2 - y1);
+
+            if (dx >= dy)
+                step = dx;
+            else
+                step = dy;
+
+            dx = dx / step;
+            dy = dy / step;
+
+            x = x1;
+            y = y1;
+
+            for (int i = 0; i <= step; i++)
+            {
+                SetPixel((int)Math.Round(x), (int)Math.Round(y), color);
+                x = x + dx;
+                y = y + dy;
+            }
         }
     }
 }

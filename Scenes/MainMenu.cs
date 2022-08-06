@@ -10,6 +10,7 @@ using System.Diagnostics;
 using ZED.GUI;
 using ZED.Objects;
 using ZED.Input;
+using System.Numerics;
 
 namespace ZED.Scenes
 {
@@ -17,57 +18,79 @@ namespace ZED.Scenes
     {
         private StarField _starField;
 
-        public MainMenu() : base("Main Menu")
+        public MainMenu() : base(MainMenuSceneName)
         {
-            
+        }
+
+        protected override void OnButtonDown(object sender, ButtonEventArgs e)
+        {
+            base.OnButtonDown(sender, e);
         }
 
         protected override void Setup()
         {
-            _nextScene = null;
+            SceneManager.ClosingToMainMenu = false;
 
-            _starField = new StarField(_display, 50);
+            NextScene = null;
+
+            _starField = new StarField(Display);
 
             TextMenu mainMenu = new TextMenu();
+            TextMenu sceneMenu = new TextMenu();
 
             mainMenu.Header = new Text(0, 7, "- main menu -", Colors.White, Fonts.FiveBySeven);
 
             mainMenu.TextOptions.Add(new SelectableText(0, 17, "start", Colors.White, Fonts.FiveBySeven)
             {
-                OnPress = () => { _nextScene = new Multiplayer(); Close(); }
+                OnPress = () => { GotoPage(sceneMenu); }
             });
 
             mainMenu.TextOptions.Add(new SelectableText(0, 25, "options", Colors.White, Fonts.FiveBySeven)
             {
-                OnPress = () => { Pause(); CurrentPage.ResetSelection(); }
+                OnPress = () => { Pause(); }
             });
 
             mainMenu.TextOptions.Add(new SelectableText(0, 33, "quit", Colors.White, Fonts.FiveBySeven)
             {
-                OnPress = () => { Close(); }
+                OnPress = () => { Program.IsClosing = true; Close(); }
+            });
+            
+            sceneMenu.Header = new Text(0, 7, "- scenes -", Colors.White, Fonts.FiveBySeven);
+
+            sceneMenu.TextOptions.Add(new SelectableText(0, 17, "game of life", Colors.White, Fonts.FiveBySeven)
+            {
+                OnPress = () => { NextScene = new GameOfLife(); Close(); }
+            });
+
+            sceneMenu.TextOptions.Add(new SelectableText(0, 25, "multiplayer", Colors.White, Fonts.FiveBySeven)
+            {
+                OnPress = () => { NextScene = new Multiplayer(); Close(); }
+            });
+
+            sceneMenu.TextOptions.Add(new SelectableText(0, 32, "back", Colors.White, Fonts.FiveBySeven)
+            {
+                OnPress = () => { GotoPage(mainMenu); }
             });
 
             AddPage(mainMenu);
+            AddPage(sceneMenu);
         }
 
         protected override void PrimaryExecutionMethod()
         {
-            //while (!_sceneClosing)
+            Display.Clear();
+
+            _starField.Draw(LastFrameTicks);
+
+            long scaledFrameCount = FrameCount / 10;
+
+            CurrentPage.Header.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + 180, 1, 0.9);
+
+            int colorOffset = 0;
+            foreach (var option in CurrentPage.TextOptions)
             {
-                _display.Clear();
-
-                _starField.Draw(_frameCount);
-
-                long scaledFrameCount = _frameCount / 10;
-
-                CurrentPage.Header.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + 180, 1, 0.9);
-
-                int colorOffset = 0;
-                foreach (var option in CurrentPage.TextOptions)
-                {
-                    option.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + colorOffset, 1, 0.8);
-                    colorOffset += 10;
-                }
+                option.TextColor = ColorExtensions.ColorFromHSV(scaledFrameCount + colorOffset, 1, 0.8);
+                colorOffset += 10;
             }
         }
     }

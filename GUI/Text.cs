@@ -10,11 +10,11 @@ namespace ZED.GUI
 {
     internal class Text
     {
-        protected string _content;
+        protected string UnderlyingContent;
         public virtual string Content
         {
-            get { return _content; }
-            set { _content = value; }
+            get { return UnderlyingContent; }
+            set { UnderlyingContent = value; }
         }
 
         public int X = 0;
@@ -23,7 +23,10 @@ namespace ZED.GUI
         public Color TextColor;
         public RGBLedFont Font;
 
-        private (int X, int Y) _fontSize;
+        public (int X, int Y) FontSize
+        {
+            get; private set;
+        }
 
         public Text(int x, int y, string content, Color? color = null, RGBLedFont font = null)
         {
@@ -33,14 +36,15 @@ namespace ZED.GUI
             TextColor = color ?? Common.Colors.White;
             Font = font ?? Common.Fonts.FourBySix;
 
-            _fontSize = Common.Fonts.GetFontSize(Font);
+            FontSize = Common.Fonts.GetFontSize(Font);
         }
 
         public void Draw(IDisplay display, bool center = false)
         {
             if (center)
             {
-                int midX = (display.Width / 2) - ((_fontSize.X * Content.Length) / 2);
+                int midX = (int)Math.Ceiling((display.Width / 2.0) - (FontSize.X * (Content.Length / 2.0)));
+
                 display.DrawText(Font, midX, Y, TextColor, Content);
             }
             else

@@ -10,8 +10,6 @@ namespace ZED
 {
     class Program
     {
-        public static event Action Closing;
-
         public static bool IsClosing = false;
         public static bool DebugMode = true;
         public static bool ErrorOccurred = false;
@@ -34,9 +32,7 @@ namespace ZED
             {
                 using (InputManager inputManager = new InputManager())
                 {
-                    SceneManager sceneManager = new SceneManager(matrix);
-
-                    sceneManager.Run(new Intro());
+                    new Intro().Run(matrix);
                 }
             }
 
@@ -52,7 +48,6 @@ namespace ZED
                 Console.WriteLine($"Shutting down application...");
             }
 
-            Closing?.Invoke();
             IsClosing = true;
         }
     }

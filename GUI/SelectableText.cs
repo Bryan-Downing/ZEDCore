@@ -12,8 +12,8 @@ namespace ZED.GUI
         private string _originalContent;
         public override string Content
         {
-            get { return _content; }
-            set { _content = value; _originalContent = value; }
+            get { return UnderlyingContent; }
+            set { UnderlyingContent = value; _originalContent = value; }
         }
 
         private bool _isSelected;
@@ -61,11 +61,11 @@ namespace ZED.GUI
         {
             if (_isSelected)
             {
-                _content = $"< {_originalContent} >";
+                UnderlyingContent = $"< {_originalContent} >";
             }
             else
             {
-                _content = _originalContent;
+                UnderlyingContent = _originalContent;
             }
         }
     }

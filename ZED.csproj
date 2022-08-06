@@ -81,6 +81,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -97,6 +98,7 @@
     <None Include="Resources\Fonts\Font_5x7.bdf" />
     <None Include="Resources\Fonts\Font_5x8.bdf" />
     <None Include="Resources\Fonts\Font_6x10.bdf" />
+    <None Include="Resources\Fonts\Font_6x12.bdf" />
     <None Include="Resources\Fonts\Font_6x9.bdf" />
     <None Include="Resources\Fonts\Font_7x13.bdf" />
     <None Include="Resources\Fonts\Font_7x14.bdf" />
@@ -125,6 +127,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Scenes\ControllerAssignment.cs" />
     <Compile Include="Scenes\GameOfLife.cs" />
     <Compile Include="Scenes\Intro.cs" />
     <Compile Include="Scenes\Menu.cs" />
@@ -155,6 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Input\license.txt" />
+    <None Include="Resources\Controller.png" />
+    <None Include="Resources\Skull.png" />
+    <None Include="Resources\Heart.png" />
     <None Include="Resources\Error.png" />
   </ItemGroup>
   <ItemGroup>

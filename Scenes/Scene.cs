@@ -16,32 +16,36 @@ namespace ZED
     {
         public string Name;
 
-        public int FrameRate = 60;
-        public bool DisplayFPS = false;
-        public bool LockFPS = false;
+        protected bool IsPausable = true;
+        protected Scene NextScene = null;
 
-        protected bool _isPausable = true;
-        protected Scene _nextScene = Common.MainMenuScene;
+        protected IDisplay Display;
 
-        protected IDisplay _display;
+        protected bool SceneClosing = false;
+        protected bool IsPaused = false;
 
-        protected bool _sceneClosing = false;
-        protected bool _isPaused = false;
-
-        protected long _frameCount = 0;
-        protected long _elapsedMS
+        protected long FrameCount = 0;
+        protected long TotalElapsedMS
         {
             get { return _timeStopwatch?.ElapsedMilliseconds ?? 0; }
         }
-
-        protected long _lastFrameMS
+        protected long TotalElapsedTicks
         {
-            get { return _lastFrameTicks / TimeSpan.TicksPerMillisecond; }
+            get { return _timeStopwatch?.ElapsedTicks ?? 0; }
         }
-        protected long _lastFrameTicks = 0;
+
+        protected long LastFrameMS
+        {
+            get { return LastFrameTicks / TimeSpan.TicksPerMillisecond; }
+        }
+        protected long LastFrameTicks = 0;
 
         private Stopwatch _frameStopwatch = new Stopwatch();
         private Stopwatch _timeStopwatch = new Stopwatch();
+
+        private Scene _nestedSceneToRun = null;
+
+        private System.Drawing.Bitmap _errorImage = Properties.Resources.Error;
 
         public Scene (string name = "Unknown Scene")
         {
@@ -66,7 +70,10 @@ namespace ZED
 
         protected virtual void OnButtonDown(object sender, ButtonEventArgs e)
         {
-
+            if (e.Button == Button.Start)
+            {
+                Pause();
+            }
         }
 
         protected virtual void OnButtonUp(object sender, ButtonEventArgs e)
@@ -78,20 +85,26 @@ namespace ZED
         {
 
         }
+
+        protected virtual void OnNestedSceneClosed()
+        {
+
+        }
         
-        public Scene Run(IDisplay display)
+        public void Run(IDisplay display)
         {
             lock (SceneManager.SceneChangingLock)
             {
                 Console.WriteLine($"Running scene [{Name}]...");
 
-                _sceneClosing = Program.IsClosing;
+                SceneManager.CurrentScene = this;
 
-                _display = display;
+                SceneClosing = Program.IsClosing;
+
+                Display = display;
 
                 InputManager.Instance.ButtonChanged += OnButtonChanged;
                 InputManager.Instance.AxisChanged += OnAxisChanged;
-                Program.Closing += OnProgramClosing;
 
                 _frameStopwatch.Restart();
                 _timeStopwatch.Restart();
@@ -99,7 +112,7 @@ namespace ZED
                 Setup();
             }
 
-            while (!_sceneClosing)
+            while (!SceneClosing && !SceneManager.ClosingToMainMenu && !Program.IsClosing)
             {
                 PrimaryExecutionMethod();
 
@@ -108,15 +121,24 @@ namespace ZED
 
             Close();
 
-            return _nextScene;
+            if (SceneManager.ClosingToMainMenu)
+            {
+                NextScene = new MainMenu();
+            }
+
+            if (NextScene != null)
+            {
+                NextScene.Run(Display);
+            }
         }
 
         protected virtual void Draw()
         {
             _frameStopwatch.Stop();
-            _lastFrameTicks = _frameStopwatch.ElapsedTicks;
+            LastFrameTicks = _frameStopwatch.ElapsedTicks;
+            _frameStopwatch.Restart();
 
-            if (DisplayFPS)
+            if (SceneManager.DisplayFPS)
             {
                 DrawFPSCounter();
             }
@@ -126,18 +148,23 @@ namespace ZED
                 DrawErrorSymbol();
             }
 
-            _display.Draw();
+            Display.Draw();
 
             int frameDelayMS = 0;
 
-            if (LockFPS)
+            if (SceneManager.LockFPS)
             {
-                frameDelayMS = (1000 / FrameRate) - (int)_frameStopwatch.ElapsedMilliseconds;
+                frameDelayMS = (1000 / SceneManager.FrameRate) - (int)_frameStopwatch.ElapsedMilliseconds;
             }
 
-            if (_isPaused && _isPausable)
+            if (IsPaused && IsPausable)
             {
-                RunPauseMenu();
+                RunNestedScene(new OptionsMenu(this));
+            }
+
+            if (_nestedSceneToRun != null)
+            {
+                RunNestedSceneInternal(_nestedSceneToRun);
             }
 
             if (frameDelayMS > 0)
@@ -145,9 +172,7 @@ namespace ZED
                 System.Threading.Thread.Sleep(frameDelayMS);
             }
 
-            _frameStopwatch.Restart();
-
-            _frameCount++;
+            FrameCount++;
         }
 
         private object _pauseLock = new object();
@@ -155,27 +180,37 @@ namespace ZED
         {
             lock (_pauseLock)
             {
-                if (!_isPausable || _isPaused)
+                if (!IsPausable || IsPaused)
                 {
                     return;
                 }
 
-                _isPaused = true;
+                IsPaused = true;
             }
         }
 
-        protected virtual void RunPauseMenu()
+        protected void RunNestedScene(Scene scene)
         {
+            _nestedSceneToRun = scene;
+        }
+
+        private void RunNestedSceneInternal(Scene scene)
+        {
+            _nestedSceneToRun = null;
+
             InputManager.Instance.ButtonChanged -= OnButtonChanged;
             InputManager.Instance.AxisChanged -= OnAxisChanged;
 
             _frameStopwatch.Stop();
             _timeStopwatch.Stop();
 
-            OptionsMenu optionsMenu = new OptionsMenu();
-            optionsMenu.Run(_display);
+            scene.Run(Display);
 
-            _isPaused = false;
+            OnNestedSceneClosed();
+
+            SceneManager.CurrentScene = this;
+
+            IsPaused = false;
 
             _frameStopwatch.Start();
             _timeStopwatch.Start();
@@ -186,41 +221,36 @@ namespace ZED
 
         private void DrawFPSCounter()
         {
-            long fps = (long)(_frameCount / Math.Max(_timeStopwatch.ElapsedMilliseconds / 1000.0, 1.0));
+            long fps = (long)(FrameCount / Math.Max(_timeStopwatch.ElapsedMilliseconds / 1000.0, 1.0));
 
-            _display.DrawRect(1, 1, 13, 7, Common.Colors.Black);
+            Display.DrawRect(1, 1, 13, 7, Common.Colors.Black);
 
-            _display.DrawText(Common.Fonts.FourBySix, 2, 7, Common.Colors.White, $"{fps}");
+            Display.DrawText(Common.Fonts.FourBySix, 2, 7, Common.Colors.White, $"{fps}");
         }
 
         private void DrawErrorSymbol()
         {
-            int x = _display.Width - (Properties.Resources.Error.Width + 1);
+            int x = Display.Width - (_errorImage.Width + 1);
             int y = 1;
 
-            _display.DrawImage(x, y, Properties.Resources.Error);
-        }
-
-        private void OnProgramClosing()
-        {
-            Close();
+            Display.DrawImage(x, y, _errorImage);
         }
 
         public void Close()
         {
             lock (SceneManager.SceneChangingLock)
             {
-                if (!_sceneClosing)
+                if (!SceneClosing)
                 {
                     if (Program.DebugMode)
                     {
                         Console.WriteLine($"Exiting scene [{Name}].");
                     }
 
-                    _sceneClosing = true;
+                    SceneClosing = true;
                     InputManager.Instance.ButtonChanged -= OnButtonChanged;
                     InputManager.Instance.AxisChanged -= OnAxisChanged;
-                    Program.Closing -= OnProgramClosing;
+                    //Program.Closing -= OnProgramClosing;
                 }
             }
         }

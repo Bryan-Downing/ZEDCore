@@ -17,6 +17,7 @@ namespace ZED.Scenes
             set { GotoPage(value); }
         }
 
+        public TextMenu MainPage { get; private set; }
         public TextMenu PreviousPage { get; private set; }
 
         private List<TextMenu> _pages;
@@ -27,13 +28,25 @@ namespace ZED.Scenes
             _pages = new List<TextMenu>();
             _currentPage = null;
             PreviousPage = null;
+            MainPage = null;
+        }
+
+        protected override void Setup()
+        {
+
         }
 
         protected override void Draw()
         {
-            CurrentPage?.Draw(_display, true);
+            CurrentPage?.Draw(Display, true);
 
             base.Draw();
+        }
+
+        protected override void OnNestedSceneClosed()
+        {
+            GotoPage(_pages.FirstOrDefault());
+            CurrentPage.ResetSelection();
         }
 
         protected void AddPage(TextMenu page = null)
@@ -46,6 +59,11 @@ namespace ZED.Scenes
             if (!_pages.Contains(page))
             {
                 _pages.Add(page);
+            }
+
+            if (MainPage == null)
+            {
+                MainPage = page;
             }
 
             if (_currentPage == null)
@@ -100,6 +118,13 @@ namespace ZED.Scenes
             if (e.Button == Button.A)
             {
                 _currentPage?.SelectedElement?.Press();
+            }
+            else if (e.Button == Button.B)
+            {
+                if (CurrentPage != MainPage)
+                {
+                    GotoPage(PreviousPage);
+                }
             }
         }
     }
