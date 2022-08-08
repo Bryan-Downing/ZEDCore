@@ -27,6 +27,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -137,8 +139,11 @@
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="SceneManager.cs" />
     <Compile Include="Scenes\Multiplayer.cs" />
+    <Compile Include="Scenes\ScoreViewer.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Utilities\FontLoader.cs" />
+    <Compile Include="Utilities\FileLogger.cs" />
+    <Compile Include="Utilities\ScoreFileHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include=".vs\RGB Matrix\v17\" />

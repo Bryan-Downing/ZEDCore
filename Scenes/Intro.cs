@@ -24,7 +24,7 @@ namespace ZED.Scenes
         private GUI.Text _logoText;
         private DateTime? _finishedDrawingTime = null;
 
-        private double _holdSeconds = 2;
+        private double _holdSeconds = 1;
 
         public Intro() : base("Intro")
         {

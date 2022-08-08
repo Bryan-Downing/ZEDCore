@@ -40,6 +40,16 @@ namespace ZED.Scenes
         {
         }
 
+        protected override void OnButtonDown(object sender, ButtonEventArgs e)
+        {
+            base.OnButtonDown(sender, e);
+
+            if (e.Button == Button.LeftTrigger)
+            {
+                HandleGameOver();
+            }
+        }
+
         protected override void OnAxisChanged(object sender, AxisEventArgs e)
         {
             Player player = null;
@@ -210,7 +220,7 @@ namespace ZED.Scenes
 
             if (playersAlive <= 0)
             {
-                _gameOverText.Draw(Display, true);
+                HandleGameOver();
             }
             else
             {
@@ -218,7 +228,26 @@ namespace ZED.Scenes
                 _scoreText.Content = $"{_score}";
             }
 
+            if (_handledGameOver)
+            {
+                _gameOverText.Draw(Display, true);
+            }
+
             _scoreText.Draw(Display, true);
+        }
+
+        private bool _handledGameOver = false;
+        private void HandleGameOver()
+        {
+            if (!_handledGameOver)
+            {
+                _handledGameOver = true;
+
+                Utilities.ScoreFileHandler scoreFileHandler = new Utilities.ScoreFileHandler(nameof(Multiplayer));
+
+                // TODO: Name input.
+                scoreFileHandler.WriteScore("TEST", (int)_score);
+            }
         }
 
         private void InitStar(Star star)

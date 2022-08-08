@@ -89,7 +89,7 @@ namespace ZED
         {
             lock (SceneManager.SceneChangingLock)
             {
-                Console.WriteLine($"Running scene [{Name}]...");
+                Program.Logger.Log($"Running scene [{Name}]...");
 
                 SceneManager.CurrentScene = this;
 
@@ -238,7 +238,7 @@ namespace ZED
                 {
                     if (Program.DebugMode)
                     {
-                        Console.WriteLine($"Exiting scene [{Name}].");
+                        Program.Logger.Log($"Exiting scene [{Name}].");
                     }
 
                     SceneClosing = true;

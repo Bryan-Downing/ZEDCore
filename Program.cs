@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ZED.Common;
 using ZED.Display;
 using ZED.Scenes;
+using ZED.Utilities;
 
 namespace ZED
 {
@@ -14,30 +16,39 @@ namespace ZED
 
         public static Random Random = new Random();
 
+        public static FileLogger Logger;
+
         private static int Main(string[] args)
         {
-            Console.WriteLine();
-            Console.WriteLine($"Welcome to ZEDEngine!");
-            Console.WriteLine("Press SHIFT+Q at any time to exit.");
+            HandleArguments(args);
 
-            if (DebugMode)
+            Settings.LoadOrInitializeSettings();
+
+            using (Logger = new FileLogger(Settings.LogFilePath))
             {
-                Console.WriteLine("*** WARNING: Debug mode is enabled. ***");
-            }
+                Logger.Log();
+                Logger.Log($"Starting ZEDEngine...");
 
-            Console.WriteLine();
-
-            Task.Run(() => Common.Fonts.Init()); // Start loading the font resources on another thread.
-
-            using (var matrix = new LEDMatrixDisplay(Settings.DefaultOptions))
-            {
-                using (InputManager inputManager = new InputManager())
+                if (DebugMode)
                 {
-                    new Intro().Run(matrix);
+                    Logger.Log("*** WARNING: Debug mode is enabled. ***");
+                    Logger.Log("Press SHIFT+Q at any time to exit.");
                 }
-            }
 
-            Close();
+                Logger.Log();
+
+                Task.Run(() => Fonts.Init()); // Start loading the font resources on another thread.
+
+                using (var matrix = new LEDMatrixDisplay(Settings.MatrixOptions))
+                {
+                    using (InputManager inputManager = new InputManager())
+                    {
+                        new Intro().Run(matrix);
+                    }
+                }
+
+                Close();
+            }
 
             return 0;
         }
@@ -46,10 +57,15 @@ namespace ZED
         {
             if (Program.DebugMode)
             {
-                Console.WriteLine($"Shutting down application...");
+                Program.Logger.Log($"Shutting down application...");
             }
 
             IsClosing = true;
+        }
+
+        private static void HandleArguments(string[] args)
+        {
+            
         }
     }
 }

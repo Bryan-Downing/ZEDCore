@@ -41,7 +41,12 @@ namespace ZED.Scenes
                 OnPress = () => { Pause(); }
             });
 
-            mainMenu.TextOptions.Add(new SelectableText(0, 33, "quit", Colors.White, Fonts.FiveBySeven)
+            mainMenu.TextOptions.Add(new SelectableText(0, 33, "scores", Colors.White, Fonts.FiveBySeven)
+            {
+                OnPress = () => { NextScene = new ScoreViewer(); Close(); }
+            });
+
+            mainMenu.TextOptions.Add(new SelectableText(0, 41, "quit", Colors.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { Program.IsClosing = true; Close(); }
             });

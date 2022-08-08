@@ -40,7 +40,7 @@ namespace ZED
 
         public InputManager()
         {
-            Console.WriteLine($"Constructed InputManager.");
+            Program.Logger.Log($"Constructed InputManager.");
 
             if (Instance != null)
             {
@@ -88,7 +88,7 @@ namespace ZED
 
                         InputDevices.Add(gamepad);
 
-                        Console.WriteLine($"Gamepad [{joystickInputFile}] detected.");
+                        Program.Logger.Log($"Gamepad [{joystickInputFile}] detected.");
 
                         foreach (var pair in _playerToDeviceMap)
                         {
@@ -141,7 +141,7 @@ namespace ZED
 
         public void SetInputDeviceForPlayer(PlayerID playerID, InputDevice inputDevice)
         {
-            Console.WriteLine($"Assigning device [{inputDevice?.DeviceID}] to Player [{playerID}].");
+            Program.Logger.Log($"Assigning device [{inputDevice?.DeviceID}] to Player [{playerID}].");
 
             _playerToDeviceMap[playerID] = inputDevice;
         }
@@ -154,7 +154,7 @@ namespace ZED
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[InputManager] Caught exception in OnButtonChanged: {ex} \n {ex.StackTrace}");
+                Program.Logger.Log($"Caught exception in OnButtonChanged: {ex} \n {ex.StackTrace}");
             }
         }
 
@@ -166,7 +166,7 @@ namespace ZED
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[InputManager] Caught exception in OnAxisChanged: {ex} \n {ex.StackTrace}");
+                Program.Logger.Log($"Caught exception in OnAxisChanged: {ex} \n {ex.StackTrace}");
             }
         }
 

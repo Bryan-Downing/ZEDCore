@@ -73,7 +73,7 @@ namespace ZED.Input
 
                     if (input.Key == ConsoleKey.Q && input.Modifiers.HasFlag(ConsoleModifiers.Shift))
                     {
-                        Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}User pressed Shift+Q - application closing.");
+                        Program.Logger.Log($"!!!!! User pressed Shift+Q - application closing. !!!!!");
                         Program.Close();
                     }
                     else if (ButtonBindings.TryGetValue(input.Key, out Button button))
@@ -92,7 +92,7 @@ namespace ZED.Input
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[KeyboardThread_DoWork] Caught exception: {ex}");
+                    Program.Logger.Log($"Caught exception: {ex}");
                 }
             }
         }

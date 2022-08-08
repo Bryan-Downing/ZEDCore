@@ -85,7 +85,7 @@ namespace ZED.Input
             catch (Exception e)
             {
                 Program.ErrorOccurred = true;
-                Console.WriteLine($"[ProcessMessages] Caught exception: {e}");
+                Program.Logger.Log($"Caught exception: {e}");
             }
         }
 
