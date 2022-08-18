@@ -18,8 +18,13 @@ namespace ZED
 
         public static FileLogger Logger;
 
+        // TODO: This is quick and dirty - figure out a font method for Windows.
+        public static bool IsLinux = false;
+
         private static int Main(string[] args)
         {
+            IsLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+
             HandleArguments(args);
 
             Settings.LoadOrInitializeSettings();
@@ -37,15 +42,23 @@ namespace ZED
 
                 Logger.Log();
 
-                Task.Run(() => Fonts.Init()); // Start loading the font resources on another thread.
+                //Task.Run(() => Fonts.Init()); // Start loading the font resources on another thread.
 
-                using (var matrix = new LEDMatrixDisplay(Settings.MatrixOptions))
+                using (var form = new WinFormsDisplay(192, 64))
                 {
                     using (InputManager inputManager = new InputManager())
                     {
-                        new Intro().Run(matrix);
+                        new MainMenu().Run(form);
                     }
                 }
+
+                //using (var matrix = new LEDMatrixDisplay(Settings.MatrixOptions))
+                //{
+                //    using (InputManager inputManager = new InputManager())
+                //    {
+                //        new Intro().Run(matrix);
+                //    }
+                //}
 
                 Close();
             }
@@ -65,7 +78,7 @@ namespace ZED
 
         private static void HandleArguments(string[] args)
         {
-            
+
         }
     }
 }

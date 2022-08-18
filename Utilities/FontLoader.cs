@@ -13,6 +13,11 @@ namespace ZED.Utilities
     {
         public static ConcurrentDictionary<string, RGBLedFont> LoadFromResources()
         {
+            if (!Program.IsLinux)
+            {
+                return new ConcurrentDictionary<string, RGBLedFont>();
+            }
+
             try
             {
                 ConcurrentDictionary<string, RGBLedFont> result = new ConcurrentDictionary<string, RGBLedFont>();
@@ -21,19 +26,26 @@ namespace ZED.Utilities
 
                 Parallel.ForEach(GetFontResources(), (resource) =>
                 {
-                    string fileName = System.IO.Path.Combine(tempDir, $"{resource.Name}.bsd");
-
-                    if (!System.IO.File.Exists(fileName))
+                    try
                     {
-                        using (var fs = System.IO.File.Create(fileName))
-                        using (var writer = new System.IO.StreamWriter(fs))
-                        {
-                            fs.Write(resource.Data, 0, resource.Data.Length);
-                            fs.Flush();
-                        }
-                    }
+                        string fileName = System.IO.Path.Combine(tempDir, $"{resource.Name}.bsd");
 
-                    result.TryAdd(resource.Name, new RGBLedFont(fileName));
+                        if (!System.IO.File.Exists(fileName))
+                        {
+                            using (var fs = System.IO.File.Create(fileName))
+                            using (var writer = new System.IO.StreamWriter(fs))
+                            {
+                                fs.Write(resource.Data, 0, resource.Data.Length);
+                                fs.Flush();
+                            }
+                        }
+
+                        result.TryAdd(resource.Name, new RGBLedFont(fileName));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"[{nameof(FontLoader)}] Caught exception in LoadFromResources: {e} \n {e.StackTrace}");
+                    }
                 });
 
                 return result;

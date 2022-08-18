@@ -1,8 +1,8 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZED.Common;
+using System.Drawing;
 
 namespace ZED.Scenes
 {
@@ -47,7 +47,7 @@ namespace ZED.Scenes
                 _gridColors.Add(new List<GridColor>());
                 for (int y = 0; y < Display.Height; y++)
                 {
-                    _gridColors[x].Add(new GridColor() { Color = Common.Colors.Black, Age = 0, LifeSpan = int.MaxValue });
+                    _gridColors[x].Add(new GridColor() { Color = Color.Black, Age = 0, LifeSpan = int.MaxValue });
                 }
             }
 
@@ -72,7 +72,7 @@ namespace ZED.Scenes
 
                     if (_gridColors[x][y].Age > _gridColors[x][y].LifeSpan)
                     {
-                        _gridColors[x][y].Color = Common.Colors.Black;
+                        _gridColors[x][y].Color = Color.Black;
                         _gridColors[x][y].Age = 0;
                         _gridColors[x][y].LifeSpan = int.MaxValue;
                     }

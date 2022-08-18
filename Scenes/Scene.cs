@@ -3,6 +3,7 @@ using System.Diagnostics;
 using ZED.Display;
 using ZED.Input;
 using ZED.Scenes;
+using System.Drawing;
 
 namespace ZED
 {
@@ -217,9 +218,9 @@ namespace ZED
         {
             long fps = (long)(FrameCount / Math.Max(_timeStopwatch.ElapsedMilliseconds / 1000.0, 1.0));
 
-            Display.DrawRect(1, 1, 13, 7, Common.Colors.Black);
+            Display.DrawRect(1, 1, 13, 7, Color.Black);
 
-            Display.DrawText(Common.Fonts.FourBySix, 2, 7, Common.Colors.White, $"{fps}");
+            Display.DrawText(Common.Fonts.FourBySix, 2, 7, Color.White, $"{fps}");
         }
 
         private void DrawErrorSymbol()

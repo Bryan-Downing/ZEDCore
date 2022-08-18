@@ -1,5 +1,4 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Numerics;
 using ZED.Common;
 using ZED.Input;
 using ZED.Objects;
+using System.Drawing;
 
 namespace ZED.Scenes
 {
@@ -104,8 +104,8 @@ namespace ZED.Scenes
             _currentLevel = 1;
             _lastCheckpointLevel = 0;
             _score = 0;
-            _scoreText = new GUI.Text(0, 8, $"{_score}", Common.Colors.White, Common.Fonts.FiveBySeven);
-            _gameOverText = new GUI.Text(0, Display.Height / 2, "YOU DIED", Common.Colors.White, Common.Fonts.NineByFifteen);
+            _scoreText = new GUI.Text(0, 8, $"{_score}", Color.White, Common.Fonts.FiveBySeven);
+            _gameOverText = new GUI.Text(0, Display.Height / 2, "YOU DIED", Color.White, Common.Fonts.NineByFifteen);
 
             _starField = new StarField(Display, _starsPerLevel);
 
@@ -311,7 +311,7 @@ namespace ZED.Scenes
                 set { _playerHue = value; PlayerColor = ColorExtensions.ColorFromHSV(value); }
             }
 
-            public Color PlayerColor = Common.Colors.White;
+            public Color PlayerColor = Color.White;
 
             private List<BitArray> _pixelMask;
 

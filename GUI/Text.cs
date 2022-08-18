@@ -1,6 +1,6 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
+﻿using System;
 using ZED.Display;
+using System.Drawing;
 
 namespace ZED.GUI
 {
@@ -17,19 +17,19 @@ namespace ZED.GUI
         public int Y = 0;
 
         public Color TextColor;
-        public RGBLedFont Font;
+        public rpi_rgb_led_matrix_sharp.RGBLedFont Font;
 
         public (int X, int Y) FontSize
         {
             get; private set;
         }
 
-        public Text(int x, int y, string content, Color? color = null, RGBLedFont font = null)
+        public Text(int x, int y, string content, Color? color = null, rpi_rgb_led_matrix_sharp.RGBLedFont font = null)
         {
             X = x;
             Y = y;
             Content = content;
-            TextColor = color ?? Common.Colors.White;
+            TextColor = color ?? Color.White;
             Font = font ?? Common.Fonts.FourBySix;
 
             FontSize = Common.Fonts.GetFontSize(Font);

@@ -10,7 +10,14 @@ namespace ZED.Common
 
         static Fonts()
         {
-            _fontDictionary = Utilities.FontLoader.LoadFromResources();
+            try
+            {
+                _fontDictionary = Utilities.FontLoader.LoadFromResources();
+            }
+            catch (Exception e)
+            {
+                _fontDictionary = new System.Collections.Concurrent.ConcurrentDictionary<string, RGBLedFont>();
+            }
         }
 
         /// <summary>
@@ -22,24 +29,25 @@ namespace ZED.Common
         }
 
         // TODO: Figure out a more elegant solution to this.
-        public static RGBLedFont FourBySix { get { return _fontDictionary["4x6"]; } }
-        public static RGBLedFont FiveBySeven { get { return _fontDictionary["5x7"]; } }
-        public static RGBLedFont FiveByEight { get { return _fontDictionary["5x8"]; } }
-        public static RGBLedFont SixByNine { get { return _fontDictionary["6x9"]; } }
-        public static RGBLedFont SixByTen { get { return _fontDictionary["6x10"]; } }
-        public static RGBLedFont SixByTwelve { get { return _fontDictionary["6x12"]; } }
-        public static RGBLedFont SevenByThirteen { get { return _fontDictionary["7x13"]; } }
-        public static RGBLedFont SevenByFourteen { get { return _fontDictionary["7x14"]; } }
-        public static RGBLedFont EightByThirteen { get { return _fontDictionary["8x13"]; } }
-        public static RGBLedFont NineByFifteen { get { return _fontDictionary["9x15"]; } }
-        public static RGBLedFont NineByEighteen { get { return _fontDictionary["9x18"]; } }
+        public static RGBLedFont FourBySix { get { return _fontDictionary.TryGetValue("4x6", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont FiveBySeven { get { return _fontDictionary.TryGetValue("5x7", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont FiveByEight { get { return _fontDictionary.TryGetValue("5x8", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont SixByNine { get { return _fontDictionary.TryGetValue("6x9", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont SixByTen { get { return _fontDictionary.TryGetValue("6x10", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont SixByTwelve { get { return _fontDictionary.TryGetValue("6x12", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont SevenByThirteen { get { return _fontDictionary.TryGetValue("7x13", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont SevenByFourteen { get { return _fontDictionary.TryGetValue("7x14", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont EightByThirteen { get { return _fontDictionary.TryGetValue("8x13", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont NineByFifteen { get { return _fontDictionary.TryGetValue("9x15", out RGBLedFont rtn) ? rtn : null; } }
+        public static RGBLedFont NineByEighteen { get { return _fontDictionary.TryGetValue("9x18", out RGBLedFont rtn) ? rtn : null; } }
 
         // TODO: And this.
         public static (int x, int y) GetFontSize(RGBLedFont font)
         {
             if (font == null)
             {
-                throw new ArgumentNullException(nameof(font));
+                return (5, 5);
+                //throw new ArgumentNullException(nameof(font));
             }
 
             if (font == FourBySix) { return (4, 6); }
@@ -108,7 +116,7 @@ namespace ZED.Common
             return new Color(color.R, color.G, color.B);
         }
 
-        public static Color ColorFromHSV(long hue, double saturation = 1, double value = 1)
+        public static System.Drawing.Color ColorFromHSV(long hue, double saturation = 1, double value = 1)
         {
             return ColorFromHSV((int)(hue % 360), saturation, value);
         }
@@ -120,7 +128,7 @@ namespace ZED.Common
         /// <param name="saturation">The saturation of the color, 0-1.</param>
         /// <param name="value">The value (or brightness) of the color, 0-1.</param>
         /// <returns></returns>
-        public static Color ColorFromHSV(int hue, double saturation = 1, double value = 1)
+        public static System.Drawing.Color ColorFromHSV(int hue, double saturation = 1, double value = 1)
         {
             int red, green, blue;
 
@@ -143,7 +151,12 @@ namespace ZED.Common
             blue += (int)((max - blue) * (1 - saturation));
             green += (int)((max - green) * (1 - saturation));
 
-            return new Color(red, green, blue);
+            return System.Drawing.Color.FromArgb(red, green, blue);
+        }
+
+        public static System.Drawing.Color Mult(this System.Drawing.Color color, double factor)
+        {
+            return System.Drawing.Color.FromArgb((int)(color.R * factor), (int)(color.G * factor), (int)(color.B * factor));
         }
 
         public static Color Mult(this Color color, double factor)

@@ -1,5 +1,5 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
+﻿using System;
+using System.Drawing;
 
 namespace ZED.GUI
 {
@@ -24,7 +24,7 @@ namespace ZED.GUI
         public Action OnRight { private get; set; } = null;
         public Action OnPress { private get; set; } = null;
 
-        public SelectableText(int x, int y, string content, Color? color = null, RGBLedFont font = null) : base(x, y, content, color, font)
+        public SelectableText(int x, int y, string content, Color? color = null, rpi_rgb_led_matrix_sharp.RGBLedFont font = null) : base(x, y, content, color, font)
         {
 
         }

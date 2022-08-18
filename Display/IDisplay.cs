@@ -1,4 +1,4 @@
-﻿using rpi_rgb_led_matrix_sharp;
+﻿using System.Drawing;
 using System;
 
 namespace ZED.Display
@@ -54,7 +54,7 @@ namespace ZED.Display
         /// <param name="text"></param>
         /// <param name="spacing"></param>
         /// <param name="vertical"></param>
-        void DrawText(RGBLedFont font, int x, int y, Color color, string text, int spacing = 0, bool vertical = false);
+        void DrawText(object font, int x, int y, Color color, string text, int spacing = 0, bool vertical = false);
 
         /// <summary>
         /// Draws an image on the display. <para/>

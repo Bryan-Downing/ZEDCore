@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ZED.Utilities;
 using ZED.GUI;
 using ZED.Common;
+using System.Drawing;
 
 namespace ZED.Scenes
 {
@@ -24,13 +25,13 @@ namespace ZED.Scenes
         {
             Display.Clear();
 
-            Text headerText = new Text(0, 7, "- scores -", Colors.White, Fonts.FiveByEight);
+            Text headerText = new Text(0, 7, "- scores -", Color.White, Fonts.FiveByEight);
             headerText.Draw(Display, true);
 
             int curY = 17;
             foreach (var record in _scoreFileRecords.OrderByDescending(x => x.Score))
             {
-                new Text(0, curY, $"{record.Name}  {record.Score}", Colors.White, Fonts.FourBySix).Draw(Display, true);
+                new Text(0, curY, $"{record.Name}  {record.Score}", Color.White, Fonts.FourBySix).Draw(Display, true);
             }
         }
     }

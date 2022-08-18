@@ -42,9 +42,9 @@ namespace ZED.Display
             _matrix.SwapOnVsync(_canvas);
         }
 
-        public void DrawRect(int x, int y, int width, int height, Color color)
+        public void DrawRect(int x, int y, int width, int height, System.Drawing.Color color)
         {
-            Color colorToDraw = color.Mult(Settings.Brightness);
+            Color colorToDraw = color.Mult(Settings.Brightness).ToColor();
 
             for (int i = x; i < x + width; i++)
             {
@@ -55,9 +55,9 @@ namespace ZED.Display
             }
         }
 
-        public void DrawBox(int x, int y, int width, int height, Color color)
+        public void DrawBox(int x, int y, int width, int height, System.Drawing.Color color)
         {
-            Color colorToDraw = color.Mult(Settings.Brightness);
+            Color colorToDraw = color.Mult(Settings.Brightness).ToColor();
 
             for (int i = x; i < x + width; i++)
             {
@@ -112,19 +112,19 @@ namespace ZED.Display
             }
         }
 
-        public void DrawText(RGBLedFont font, int x, int y, Color color, string text, int spacing = 0, bool vertical = false)
+        public void DrawText(object font, int x, int y, System.Drawing.Color color, string text, int spacing = 0, bool vertical = false)
         {
-            _canvas.DrawText(font, x, y, color.Mult(Settings.Brightness), text, spacing, vertical);
+            _canvas.DrawText((RGBLedFont)font, x, y, color.Mult(Settings.Brightness).ToColor(), text, spacing, vertical);
         }
 
-        public void Fill(Color color)
+        public void Fill(System.Drawing.Color color)
         {
-            _canvas.Fill(color.Mult(Settings.Brightness));
+            _canvas.Fill(color.ToColor().Mult(Settings.Brightness));
         }
 
-        public void SetPixel(int x, int y, Color color)
+        public void SetPixel(int x, int y, System.Drawing.Color color)
         {
-            _canvas.SetPixel(x, y, color.Mult(Settings.Brightness));
+            _canvas.SetPixel(x, y, color.ToColor().Mult(Settings.Brightness));
         }
 
         public void Dispose()
@@ -132,7 +132,7 @@ namespace ZED.Display
             _matrix?.Dispose();
         }
 
-        public void DrawCircle(int cx, int cy, int radius, Color color, bool filled = false)
+        public void DrawCircle(int cx, int cy, int radius, System.Drawing.Color color, bool filled = false)
         {
             // (Potentially bad) implementation of the Midpoint algorithm.
 
@@ -164,7 +164,7 @@ namespace ZED.Display
             }
         }
 
-        private void DrawCirclePoints(int cx, int cy, int x, int y, Color color, bool filled)
+        private void DrawCirclePoints(int cx, int cy, int x, int y, System.Drawing.Color color, bool filled)
         {
             if (filled)
             {
@@ -183,7 +183,7 @@ namespace ZED.Display
             }
         }
 
-        public void DrawLine(int x1, int y1, int x2, int y2, Color color)
+        public void DrawLine(int x1, int y1, int x2, int y2, System.Drawing.Color color)
         {
             float x, y, dx, dy, step;
 

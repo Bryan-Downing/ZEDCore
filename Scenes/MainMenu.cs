@@ -2,6 +2,7 @@
 using ZED.GUI;
 using ZED.Input;
 using ZED.Objects;
+using System.Drawing;
 
 namespace ZED.Scenes
 {
@@ -29,41 +30,41 @@ namespace ZED.Scenes
             TextMenu mainMenu = new TextMenu();
             TextMenu sceneMenu = new TextMenu();
 
-            mainMenu.Header = new Text(0, 7, "- main menu -", Colors.White, Fonts.FiveBySeven);
+            mainMenu.Header = new Text(0, 7, "- main menu -", Color.White, Fonts.FiveBySeven);
 
-            mainMenu.TextOptions.Add(new SelectableText(0, 17, "start", Colors.White, Fonts.FiveBySeven)
+            mainMenu.TextOptions.Add(new SelectableText(0, 17, "start", Color.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { GotoPage(sceneMenu); }
             });
 
-            mainMenu.TextOptions.Add(new SelectableText(0, 25, "options", Colors.White, Fonts.FiveBySeven)
+            mainMenu.TextOptions.Add(new SelectableText(0, 25, "options", Color.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { Pause(); }
             });
 
-            mainMenu.TextOptions.Add(new SelectableText(0, 33, "scores", Colors.White, Fonts.FiveBySeven)
+            mainMenu.TextOptions.Add(new SelectableText(0, 33, "scores", Color.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { NextScene = new ScoreViewer(); Close(); }
             });
 
-            mainMenu.TextOptions.Add(new SelectableText(0, 41, "quit", Colors.White, Fonts.FiveBySeven)
+            mainMenu.TextOptions.Add(new SelectableText(0, 41, "quit", Color.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { Program.IsClosing = true; Close(); }
             });
 
-            sceneMenu.Header = new Text(0, 7, "- scenes -", Colors.White, Fonts.FiveBySeven);
+            sceneMenu.Header = new Text(0, 7, "- scenes -", Color.White, Fonts.FiveBySeven);
 
-            sceneMenu.TextOptions.Add(new SelectableText(0, 17, "game of life", Colors.White, Fonts.FiveBySeven)
+            sceneMenu.TextOptions.Add(new SelectableText(0, 17, "game of life", Color.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { NextScene = new GameOfLife(); Close(); }
             });
 
-            sceneMenu.TextOptions.Add(new SelectableText(0, 25, "multiplayer", Colors.White, Fonts.FiveBySeven)
+            sceneMenu.TextOptions.Add(new SelectableText(0, 25, "multiplayer", Color.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { NextScene = new Multiplayer(); Close(); }
             });
 
-            sceneMenu.TextOptions.Add(new SelectableText(0, 32, "back", Colors.White, Fonts.FiveBySeven)
+            sceneMenu.TextOptions.Add(new SelectableText(0, 32, "back", Color.White, Fonts.FiveBySeven)
             {
                 OnPress = () => { GotoPage(mainMenu); }
             });

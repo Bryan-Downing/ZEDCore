@@ -1,7 +1,7 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
+﻿using System;
 using ZED.Common;
 using ZED.Input;
+using System.Drawing;
 
 namespace ZED.Scenes
 {
@@ -41,7 +41,7 @@ namespace ZED.Scenes
 
             _pixelColors.Initialize();
 
-            _logoText = new GUI.Text(0, Display.Height / 2, "ZED", Colors.Black, Fonts.NineByEighteen);
+            //_logoText = new GUI.Text(0, Display.Height / 2, "ZED", Color.Black, Fonts.NineByEighteen);
 
             NextScene = new MainMenu();
             _direction = Directions.Right;
@@ -131,12 +131,12 @@ namespace ZED.Scenes
 
             int curY = fontSize.y;
             int curX = 0;
-
-            var text = new GUI.Text(curX, curY, "ZED", Colors.Black, Fonts.FiveBySeven);
-
-            for (int i = 0; i <= Display.Width / (fontSize.x * 3); i++)
+            
+            var text = new GUI.Text(curX, curY, "ZED", Color.Black, Fonts.FiveBySeven);
+            
+            for (int i = 0; i <= Display.Width / Math.Max(fontSize.x * 3, 1); i++)
             {
-                for (int j = 0; j <= Display.Height / (fontSize.y - 1); j++)
+                for (int j = 0; j <= Display.Height / Math.Max(fontSize.y - 1, 1); j++)
                 {
                     text.TextColor = ColorExtensions.ColorFromHSV(90 + (curX + curY * 2));
                     text.X = curX;
@@ -144,7 +144,7 @@ namespace ZED.Scenes
                     text.Draw(Display, false);
                     curY += fontSize.y - 1;
                 }
-
+            
                 curY = 5;
                 curX += fontSize.x * 3;
             }
@@ -157,7 +157,7 @@ namespace ZED.Scenes
                         _pixelColors[x, y].G == 0 &&
                         _pixelColors[x, y].B == 0)
                     {
-                        Display.SetPixel(x, y, Colors.Black);
+                        Display.SetPixel(x, y, Color.Black);
                     }
                 }
             }

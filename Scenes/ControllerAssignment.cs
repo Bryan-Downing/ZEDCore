@@ -2,6 +2,7 @@
 using ZED.GUI;
 using ZED.Input;
 using ZED.Objects;
+using System.Drawing;
 
 namespace ZED.Scenes
 {
@@ -44,9 +45,9 @@ namespace ZED.Scenes
         protected override void Setup()
         {
             _starField = new StarField(Display);
-            _headerText = new Text(0, 10, "- assign controllers -", Common.Colors.White, Common.Fonts.FiveBySeven);
-            _instructionText = new Text(0, 20, "press any button to join", Common.Colors.White, Common.Fonts.FiveByEight);
-            _finishText = new Text(0, 30, "press select to finish", Common.Colors.White, Common.Fonts.FiveByEight);
+            _headerText = new Text(0, 10, "- assign controllers -", Color.White, Common.Fonts.FiveBySeven);
+            _instructionText = new Text(0, 20, "press any button to join", Color.White, Common.Fonts.FiveByEight);
+            _finishText = new Text(0, 30, "press select to finish", Color.White, Common.Fonts.FiveByEight);
 
             for (PlayerID id = PlayerID.One; id < (PlayerID)InputManager.Instance.MaxPlayers; id++)
             {

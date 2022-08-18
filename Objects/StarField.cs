@@ -1,8 +1,8 @@
-﻿using rpi_rgb_led_matrix_sharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ZED.Common;
 using ZED.Display;
+using System.Drawing;
 
 namespace ZED.Objects
 {
