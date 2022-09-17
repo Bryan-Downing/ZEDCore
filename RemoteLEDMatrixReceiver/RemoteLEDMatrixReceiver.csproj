@@ -5,21 +5,16 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RuntimeIdentifier>linux-arm</RuntimeIdentifier>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="2.88.1" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ZEDCore\ZED.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="RGBLedMatrix, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\RGBLedMatrix.dll</HintPath>
+    <Reference Include="RGBLedMatrix">
+      <HintPath>..\ZEDCore\lib\RGBLedMatrix.dll</HintPath>
     </Reference>
   </ItemGroup>
+
 </Project>

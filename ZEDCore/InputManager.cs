@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ZED.Common;
 using ZED.Input;
 
 namespace ZED
@@ -38,6 +39,8 @@ namespace ZED
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
+        private Timer _controllerSetupTimer;
+
         public InputManager()
         {
             ZEDProgram.Instance.Logger.Log($"Constructed InputManager.");
@@ -49,64 +52,65 @@ namespace ZED
 
             Instance = this;
 
-            var keyboard = new ConsoleKeyboard();
-            keyboard.ButtonChanged += OnButtonChanged;
-            keyboard.AxisChanged += OnAxisChanged;
-
-            InputDevices.Add(keyboard);
-
-            if (ZEDProgram.Instance.DebugMode)
+            if (Settings.DebugMode)
             {
-                SetInputDeviceForPlayer(PlayerID.One, keyboard);
+                //var keyboard = new ConsoleKeyboard();
+                //keyboard.ButtonChanged += OnButtonChanged;
+                //keyboard.AxisChanged += OnAxisChanged;
+                //
+                //InputDevices.Add(keyboard);
+                //
+                //SetInputDeviceForPlayer(PlayerID.One, keyboard);
             }
 
-            Task.Run(() => ControllerSetupThread_DoWork(_cancellationTokenSource.Token));
+            _controllerSetupTimer = new Timer((x) => { ControllerSetupTimer_Tick(); }, null, 0, 2000);
+        }
+
+        public void ProcessInput()
+        {
+            foreach (var device in InputDevices)
+            {
+                if (GetPlayerIDFromDevice(device) != PlayerID.None)
+                {
+                    device.ProcessMessages();
+                }
+            }
         }
 
         // TODO: This should probably handle controller disconnection as well (if the /dev/input files are deleted, at least.)
-        private void ControllerSetupThread_DoWork(CancellationToken token)
+        private void ControllerSetupTimer_Tick()
         {
-            while (!token.IsCancellationRequested && !ZEDProgram.Instance.IsClosing)
+            int controllersConnected = 0;
+
+            for (int i = 0; i < MaxPlayers; i++)
             {
-                int controllersConnected = 0;
+                string joystickInputFile = $"/dev/input/js{i}";
 
-                for (int i = 0; i < MaxPlayers; i++)
+                if (InputDevices.Any(x => x.DeviceID == joystickInputFile))
                 {
-                    string joystickInputFile = $"/dev/input/js{i}";
+                    controllersConnected++;
+                    continue;
+                }
 
-                    if (InputDevices.Any(x => x.DeviceID == joystickInputFile))
+                if (File.Exists(joystickInputFile))
+                {
+                    var gamepad = new GamepadController(joystickInputFile);
+                    gamepad.ButtonChanged += OnButtonChanged;
+                    gamepad.AxisChanged += OnAxisChanged;
+
+                    InputDevices.Add(gamepad);
+
+                    ZEDProgram.Instance.Logger.Log($"Gamepad [{joystickInputFile}] detected.");
+
+                    foreach (var pair in _playerToDeviceMap)
                     {
-                        controllersConnected++;
-                        continue;
-                    }
-
-                    if (File.Exists(joystickInputFile))
-                    {
-                        var gamepad = new GamepadController(joystickInputFile);
-                        gamepad.ButtonChanged += OnButtonChanged;
-                        gamepad.AxisChanged += OnAxisChanged;
-
-                        InputDevices.Add(gamepad);
-
-                        ZEDProgram.Instance.Logger.Log($"Gamepad [{joystickInputFile}] detected.");
-
-                        foreach (var pair in _playerToDeviceMap)
+                        if (pair.Value == null)
                         {
-                            if (pair.Value == null)
-                            {
-                                SetInputDeviceForPlayer(pair.Key, gamepad);
-                                break;
-                            }
+                            SetInputDeviceForPlayer(pair.Key, gamepad);
+                            break;
                         }
                     }
                 }
-
-                if (controllersConnected >= MaxPlayers)
-                {
-                    break;
-                }
-
-                System.Threading.Thread.Sleep(1000);
             }
         }
 
@@ -144,6 +148,14 @@ namespace ZED
             ZEDProgram.Instance.Logger.Log($"Assigning device [{inputDevice?.DeviceID}] to Player [{playerID}].");
 
             _playerToDeviceMap[playerID] = inputDevice;
+
+            if (!InputDevices.Contains(inputDevice))
+            {
+                ZEDProgram.Instance.Logger.Log($"Adding device [{inputDevice?.DeviceID}] to assign to player [{playerID}].");
+                InputDevices.Add(inputDevice);
+                _playerToDeviceMap[playerID].ButtonChanged += OnButtonChanged;
+                _playerToDeviceMap[playerID].AxisChanged += OnAxisChanged;
+            }
         }
 
         private void OnButtonChanged(object sender, ButtonEventArgs e)
@@ -178,6 +190,8 @@ namespace ZED
             {
                 device?.Dispose();
             }
+
+            _controllerSetupTimer?.Dispose();
         }
     }
 }

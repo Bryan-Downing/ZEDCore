@@ -1,7 +1,7 @@
 ﻿using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using System.Runtime.InteropServices;
-using ZED.Display;
+using ZED.Interfaces;
 
 namespace WinFormsDisplay
 {
@@ -15,7 +15,8 @@ namespace WinFormsDisplay
 
         public int Scaling = 6;
 
-        private Form _form;
+        public Form UnderlyingForm;
+
         private Graphics _formGraphics;
         private SKBitmap _canvas;
         private SKCanvas _canvasGraphics;
@@ -32,24 +33,24 @@ namespace WinFormsDisplay
             _width = width;
             _height = height;
 
-            _form = new Form();
-            _form.Width = width * Scaling;
-            _form.Height = height * Scaling;
+            UnderlyingForm = new Form();
+            UnderlyingForm.Width = width * Scaling;
+            UnderlyingForm.Height = height * Scaling;
 
-            _form.FormBorderStyle = FormBorderStyle.Sizable;
-            _form.BackColor = SKColors.Black.ToDrawingColor();
+            UnderlyingForm.FormBorderStyle = FormBorderStyle.Sizable;
+            UnderlyingForm.BackColor = SKColors.Black.ToDrawingColor();
 
-            var prop = _form.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            prop?.SetValue(_form, true);
+            var prop = UnderlyingForm.GetType().GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            prop?.SetValue(UnderlyingForm, true);
 
             //_form.Show();
 
             // TODO: Make this work - the Form should be its own class.
-            Task.Run(() => Application.Run(_form));
+            Task.Run(() => Application.Run(UnderlyingForm));
 
             _canvas = new SKBitmap(width, height);
 
-            _formGraphics = _form.CreateGraphics();
+            _formGraphics = UnderlyingForm.CreateGraphics();
             _canvasGraphics = new SKCanvas(_canvas);
 
             _formGraphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
@@ -99,17 +100,20 @@ namespace WinFormsDisplay
 
             foreach (var pixel in _pixelsToDraw)
             {
+                int bytesPerPixel = _canvas.BytesPerPixel;
+                int stride = _canvas.RowBytes;
+
                 // TODO: Might be in the wrong order.
-                rgbData[0 + (pixel.Key.Item1 * _canvas.BytesPerPixel) + (pixel.Key.Item2 * _canvas.RowBytes)] = pixel.Value.Blue;
-                rgbData[1 + (pixel.Key.Item1 * _canvas.BytesPerPixel) + (pixel.Key.Item2 * _canvas.RowBytes)] = pixel.Value.Green;
-                rgbData[2 + (pixel.Key.Item1 * _canvas.BytesPerPixel) + (pixel.Key.Item2 * _canvas.RowBytes)] = pixel.Value.Red;
+                rgbData[0 + (pixel.Key.Item1 * bytesPerPixel) + (pixel.Key.Item2 * stride)] = pixel.Value.Blue;
+                rgbData[1 + (pixel.Key.Item1 * bytesPerPixel) + (pixel.Key.Item2 * stride)] = pixel.Value.Green;
+                rgbData[2 + (pixel.Key.Item1 * bytesPerPixel) + (pixel.Key.Item2 * stride)] = pixel.Value.Red;
             }
 
             _pixelsToDraw.Clear();
 
             Marshal.Copy(rgbData, 0, ptr, rgbData.Length);
 
-            _formGraphics.DrawImage(_canvas.ToBitmap(), 0, 0, _form.Width, _form.Height);
+            _formGraphics.DrawImage(_canvas.ToBitmap(), 0, 0, UnderlyingForm.Width, UnderlyingForm.Height);
         }
 
         public void DrawBox(int x, int y, int width, int height, SKColor color)
@@ -232,7 +236,6 @@ namespace WinFormsDisplay
 
             _canvasGraphics.Dispose();
             _formGraphics.Dispose();
-            _form.Dispose();
             _canvas.Dispose();
         }
     }

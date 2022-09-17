@@ -1,9 +1,10 @@
-﻿using System;
+﻿using SkiaSharp;
+using System;
 using System.Diagnostics;
-using ZED.Display;
+using ZED.Common;
 using ZED.Input;
+using ZED.Interfaces;
 using ZED.Scenes;
-using SkiaSharp;
 
 namespace ZED
 {
@@ -108,6 +109,8 @@ namespace ZED
                 PrimaryExecutionMethod();
 
                 Draw();
+
+                InputManager.Instance.ProcessInput();
             }
 
             Close();
@@ -233,7 +236,7 @@ namespace ZED
             {
                 if (!SceneClosing)
                 {
-                    if (ZEDProgram.Instance.DebugMode)
+                    if (Settings.DebugMode)
                     {
                         ZEDProgram.Instance.Logger.Log($"Exiting scene [{Name}].");
                     }

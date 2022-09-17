@@ -1,7 +1,7 @@
-﻿using System;
-using SkiaSharp;
+﻿using SkiaSharp;
+using System;
 
-namespace ZED.Display
+namespace ZED.Interfaces
 {
     public interface IDisplay : IDisposable
     {

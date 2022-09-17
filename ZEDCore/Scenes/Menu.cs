@@ -86,6 +86,8 @@ namespace ZED.Scenes
 
         protected override void OnAxisChanged(object sender, AxisEventArgs e)
         {
+            ZEDProgram.Instance.Logger.Log($"Got axis change [{e.Axis}] [{e.Value}]");
+
             if (e.Axis == Axis.Vertical)
             {
                 if (e.Value > 0)

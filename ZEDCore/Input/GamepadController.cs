@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ZED.Utilities;
 
 namespace ZED.Input
 {
@@ -12,7 +14,14 @@ namespace ZED.Input
         public Dictionary<byte, short> AxisValues = new Dictionary<byte, short>();
 
         private readonly string _deviceFile;
-        private readonly CancellationTokenSource _cancellationTokenSource;
+
+        private FileStream _inputFileStream;
+        private Thread _inputReadTask;
+
+        private Queue<ButtonEventArgs> _buttonChangedQueue = new Queue<ButtonEventArgs>();
+        private Queue<AxisEventArgs> _axisChangedQueue = new Queue<AxisEventArgs>();
+
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public GamepadController(string deviceFile = "/dev/input/js0") : base(deviceFile)
         {
@@ -41,53 +50,74 @@ namespace ZED.Input
 
             _deviceFile = deviceFile;
 
-            // Create the Task that will constantly read the device file, process its bytes and fire events accordingly
-            _cancellationTokenSource = new CancellationTokenSource();
+            // If this throws an exception trying to open a /dev/input file, try adding root (or the current user) to the input usergroup.
+            // sudo usermod -a -G input root
+            _inputFileStream = new FileStream(_deviceFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            //_inputReadTimer = new Timer((x) => { ProcessMessages(); }, null, 0, 100);
 
-            Task.Run(() => ProcessMessages(_cancellationTokenSource.Token));
+            _inputReadTask = new Thread(ReadInputsFromFile);
+            _inputReadTask.Start();
         }
 
-        private void ProcessMessages(CancellationToken token)
+        private void ReadInputsFromFile()
         {
-            try
+            while (!_cancellationTokenSource.IsCancellationRequested)
             {
-                // If this throws an exception trying to open a /dev/input file, try adding root (or the current user) to the input usergroup.
-                // sudo usermod -a -G input root
-                using (FileStream fs = new FileStream(_deviceFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                try
                 {
                     byte[] message = new byte[8];
 
-                    while (!token.IsCancellationRequested && !ZEDProgram.Instance.IsClosing)
+                    // Read chunks of 8 bytes at a time.
+                    int bytesRead = 0;
+
+                    var readTask = _inputFileStream.ReadAsync(message, 0, 8, _cancellationTokenSource.Token);
+                    readTask.Wait();
+
+                    bytesRead = readTask.Result;
+
+                    if (bytesRead > 0)
                     {
-                        // Read chunks of 8 bytes at a time.
-                        int bytesRead = fs.Read(message, 0, 8);
-
-                        if (bytesRead > 0)
+                        string byteString = "";
+                        for (int i = 0; i < message.Length; i++)
                         {
-                            string byteString = "";
-                            for (int i = 0; i < message.Length; i++)
-                            {
-                                byteString += message[i].ToString() + ' ';
-                            }
+                            byteString += message[i].ToString() + ' ';
                         }
-
-                        if (message.HasConfiguration())
-                        {
-                            ProcessConfiguration(message);
-                        }
-
-                        ProcessValues(message);
                     }
+
+                    if (message.HasConfiguration())
+                    {
+                        ProcessConfiguration(message);
+                    }
+
+                    ProcessValues(message);
+                }
+                catch (ThreadAbortException)
+                {
+                    // Do nothing. This is fine - the thread is closing.
+                }
+                catch (Exception e)
+                {
+                    ZEDProgram.Instance.ErrorOccurred = true;
+                    ZEDProgram.Instance.Logger.Log($"Caught exception: {e}");
                 }
             }
-            catch (ThreadAbortException)
+        }
+
+        public override void ProcessMessages()
+        {
+            if (_axisChangedQueue.Count > 0)
             {
-                // Do nothing. This is fine - the thread is closing.
+                ZEDProgram.Instance.Logger.Log($"{string.Join(',', _axisChangedQueue.Select(x => $"[{x.Axis}] [{x.Value}]"))}");
             }
-            catch (Exception e)
+
+            if (_buttonChangedQueue.TryDequeue(out ButtonEventArgs button))
             {
-                ZEDProgram.Instance.ErrorOccurred = true;
-                ZEDProgram.Instance.Logger.Log($"Caught exception: {e}");
+                OnButtonChanged(this, button);
+            }
+            if (_axisChangedQueue.TryDequeue(out AxisEventArgs axis))
+            {
+                ZEDProgram.Instance.Logger.Log($"Calling OnAxisChanged({axis.Axis}, {axis.Value});");
+                OnAxisChanged(this, axis);
             }
         }
 
@@ -130,7 +160,7 @@ namespace ZED.Input
                         buttonPressed = Button.Undefined;
                     }
 
-                    OnButtonChanged(this, new ButtonEventArgs() { Button = buttonPressed, IsPressed = newValue });
+                    _buttonChangedQueue.Enqueue(new ButtonEventArgs() { Button = buttonPressed, IsPressed = newValue });
                 }
             }
             else if (message.IsAxis())
@@ -148,14 +178,22 @@ namespace ZED.Input
                         axisChanged = Axis.Undefined;
                     }
 
-                    OnAxisChanged(this, new AxisEventArgs { Axis = axisChanged, Value = newValue });
+                    _axisChangedQueue.Enqueue(new AxisEventArgs() { Axis = axisChanged, Value = newValue });
                 }
             }
         }
 
         public override void Dispose()
         {
-            _cancellationTokenSource.Cancel();
+            ZEDProgram.Instance.Logger.Log($"Disposing GamepadController [{DeviceID}].");
+
+            _cancellationTokenSource?.Cancel();
+            _inputFileStream?.Dispose();
+
+            _inputReadTask?.Join(500);
+            _cancellationTokenSource?.Dispose();
+
+            ZEDProgram.Instance.Logger.Log($"Disposed GamepadController [{DeviceID}].");
         }
     }
 }

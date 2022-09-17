@@ -1,7 +1,8 @@
 ﻿using rpi_rgb_led_matrix_sharp;
-using System;
-using ZED.Display;
 using SkiaSharp;
+using System;
+using System.IO;
+using System.Xml;
 
 namespace ZED.Common
 {
@@ -159,6 +160,246 @@ namespace ZED.Common
             }
 
             return (_boolBits & 1) == 0;
+        }
+    }
+
+    public static class ZEDMatrixOptionsExtensions
+    {
+        public static RGBLedMatrixOptions ToRGBLedMatrixOptions(this ZEDMatrixOptions options)
+        {
+            return new RGBLedMatrixOptions()
+            {
+                // Casting these to null if they're empty, or else it causes problems a la "led-sequence needs to be three characters long."
+                HardwareMapping = string.IsNullOrEmpty(options.HardwareMapping) ? null : options.HardwareMapping,
+                Rows = options.Rows,
+                Cols = options.Cols,
+                ChainLength = options.ChainLength,
+                Parallel = options.Parallel,
+                PwmBits = options.PwmBits,
+                PwmLsbNanoseconds = options.PwmLsbNanoseconds,
+                PwmDitherBits = options.PwmDitherBits,
+                Brightness = options.Brightness,
+                ScanMode = options.ScanMode,
+                RowAddressType = options.RowAddressType,
+                Multiplexing = options.Multiplexing,
+                LedRgbSequence = string.IsNullOrEmpty(options.LedRgbSequence) ? null : options.LedRgbSequence,
+                PixelMapperConfig = string.IsNullOrEmpty(options.PixelMapperConfig) ? null : options.PixelMapperConfig,
+                PanelType = string.IsNullOrEmpty(options.PanelType) ? null : options.PanelType,
+                DisableHardwarePulsing = options.DisableHardwarePulsing,
+                ShowRefreshRate = options.ShowRefreshRate,
+                InverseColors = options.InverseColors,
+                LimitRefreshRateHz = options.LimitRefreshRateHz,
+                GpioSlowdown = options.GpioSlowdown
+            };
+        }
+
+        public static byte[] Serialize(this ZEDMatrixOptions options)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter br = new BinaryWriter(ms))
+            {
+                br.Write(options.Brightness);
+                br.Write(options.Cols);
+                br.Write(options.ChainLength);
+                br.Write(options.DisableHardwarePulsing);
+                br.Write(options.GpioSlowdown);
+                br.Write(options.HardwareMapping ?? "");
+                br.Write(options.InverseColors);
+                br.Write(options.LedRgbSequence ?? "");
+                br.Write(options.LimitRefreshRateHz);
+                br.Write(options.Multiplexing);
+                br.Write(options.PanelType ?? "");
+                br.Write(options.Parallel);
+                br.Write(options.PixelMapperConfig ?? "");
+                br.Write(options.PwmBits);
+                br.Write(options.PwmDitherBits);
+                br.Write(options.PwmLsbNanoseconds);
+                br.Write(options.RowAddressType);
+                br.Write(options.Rows);
+                br.Write(options.ScanMode);
+                br.Write(options.ShowRefreshRate);
+
+                return ms.ToArray();
+            }
+        }
+
+        public static ZEDMatrixOptions Deserialize(Stream stream)
+        {
+            ZEDMatrixOptions rtn = new ZEDMatrixOptions();
+
+            BinaryReader br = new BinaryReader(stream);
+
+            rtn.Brightness = br.ReadInt32();
+            rtn.Cols = br.ReadInt32();
+            rtn.ChainLength = br.ReadInt32();
+            rtn.DisableHardwarePulsing = br.ReadBoolean();
+            rtn.GpioSlowdown = br.ReadInt32();
+            rtn.HardwareMapping = br.ReadString();
+            rtn.InverseColors = br.ReadBoolean();
+            rtn.LedRgbSequence = br.ReadString();
+            rtn.LimitRefreshRateHz = br.ReadInt32();
+            rtn.Multiplexing = br.ReadInt32();
+            rtn.PanelType = br.ReadString();
+            rtn.Parallel = br.ReadInt32();
+            rtn.PixelMapperConfig = br.ReadString();
+            rtn.PwmBits = br.ReadInt32();
+            rtn.PwmDitherBits = br.ReadInt32();
+            rtn.PwmLsbNanoseconds = br.ReadInt32();
+            rtn.RowAddressType = br.ReadInt32();
+            rtn.Rows = br.ReadInt32();
+            rtn.ScanMode = br.ReadInt32();
+            rtn.ShowRefreshRate = br.ReadBoolean();
+
+            return rtn;
+        }
+
+        public static ZEDMatrixOptions Deserialize(byte[] data)
+        {
+            using (MemoryStream ms = new MemoryStream(data))
+            {
+                return Deserialize(ms);
+            }
+        }
+
+        public static void Serialize(this ZEDMatrixOptions options, XmlTextWriter writer)
+        {
+            writer.WriteStartElement(nameof(ZEDMatrixOptions));
+
+            writer.WriteElementString(nameof(options.Brightness), options.Brightness.ToString());
+            writer.WriteElementString(nameof(options.Cols), options.Cols.ToString());
+            writer.WriteElementString(nameof(options.ChainLength), options.ChainLength.ToString());
+            writer.WriteElementString(nameof(options.DisableHardwarePulsing), options.DisableHardwarePulsing ? "1" : "0");
+            writer.WriteElementString(nameof(options.GpioSlowdown), options.GpioSlowdown.ToString());
+            writer.WriteElementString(nameof(options.HardwareMapping), options.HardwareMapping?.ToString());
+            writer.WriteElementString(nameof(options.InverseColors), options.InverseColors ? "1" : "0");
+            writer.WriteElementString(nameof(options.LedRgbSequence), options.LedRgbSequence?.ToString());
+            writer.WriteElementString(nameof(options.LimitRefreshRateHz), options.LimitRefreshRateHz.ToString());
+            writer.WriteElementString(nameof(options.Multiplexing), options.Multiplexing.ToString());
+            writer.WriteElementString(nameof(options.PanelType), options.PanelType?.ToString());
+            writer.WriteElementString(nameof(options.Parallel), options.Parallel.ToString());
+            writer.WriteElementString(nameof(options.PixelMapperConfig), options.PixelMapperConfig?.ToString());
+            writer.WriteElementString(nameof(options.PwmBits), options.PwmBits.ToString());
+            writer.WriteElementString(nameof(options.PwmDitherBits), options.PwmDitherBits.ToString());
+            writer.WriteElementString(nameof(options.PwmLsbNanoseconds), options.PwmLsbNanoseconds.ToString());
+            writer.WriteElementString(nameof(options.RowAddressType), options.RowAddressType.ToString());
+            writer.WriteElementString(nameof(options.Rows), options.Rows.ToString());
+            writer.WriteElementString(nameof(options.ScanMode), options.ScanMode.ToString());
+            writer.WriteElementString(nameof(options.ShowRefreshRate), options.ShowRefreshRate ? "1" : "0");
+            writer.WriteEndElement();
+        }
+
+        public static ZEDMatrixOptions Deserialize(XmlTextReader reader)
+        {
+            ZEDMatrixOptions options = new ZEDMatrixOptions();
+
+            while (reader.Read())
+            {
+                var nodeType = reader.NodeType;
+                var nodeName = reader.Name;
+
+                if (nodeType == XmlNodeType.EndElement && nodeName == nameof(ZEDMatrixOptions))
+                {
+                    break;
+                }
+
+                if (nodeType == XmlNodeType.Element)
+                {
+                    if (nodeName == nameof(options.Brightness))
+                    {
+                        options.Brightness = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.ChainLength))
+                    {
+                        options.ChainLength = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.Cols))
+                    {
+                        options.Cols = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.DisableHardwarePulsing))
+                    {
+                        options.DisableHardwarePulsing = reader.ReadElementContentAsBoolean();
+                    }
+                    else if (nodeName == nameof(options.GpioSlowdown))
+                    {
+                        options.GpioSlowdown = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.HardwareMapping))
+                    {
+                        options.HardwareMapping = reader.ReadElementContentAsString();
+                    }
+                    else if (nodeName == nameof(options.InverseColors))
+                    {
+                        options.InverseColors = reader.ReadElementContentAsBoolean();
+                    }
+                    else if (nodeName == nameof(options.LedRgbSequence))
+                    {
+                        options.LedRgbSequence = reader.ReadElementContentAsString();
+                        if (string.IsNullOrWhiteSpace(options.LedRgbSequence))
+                        {
+                            options.LedRgbSequence = null;
+                        }
+                    }
+                    else if (nodeName == nameof(options.LimitRefreshRateHz))
+                    {
+                        options.LimitRefreshRateHz = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.Multiplexing))
+                    {
+                        options.Multiplexing = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.PanelType))
+                    {
+                        options.PanelType = reader.ReadElementContentAsString();
+                        if (string.IsNullOrWhiteSpace(options.PanelType))
+                        {
+                            options.PanelType = null;
+                        }
+                    }
+                    else if (nodeName == nameof(options.Parallel))
+                    {
+                        options.Parallel = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.PixelMapperConfig))
+                    {
+                        options.PixelMapperConfig = reader.ReadElementContentAsString();
+                        if (string.IsNullOrWhiteSpace(options.PixelMapperConfig))
+                        {
+                            options.PixelMapperConfig = null;
+                        }
+                    }
+                    else if (nodeName == nameof(options.PwmBits))
+                    {
+                        options.PwmBits = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.PwmDitherBits))
+                    {
+                        options.PwmDitherBits = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.PwmLsbNanoseconds))
+                    {
+                        options.PwmLsbNanoseconds = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.RowAddressType))
+                    {
+                        options.RowAddressType = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.Rows))
+                    {
+                        options.Rows = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.ScanMode))
+                    {
+                        options.ScanMode = reader.ReadElementContentAsInt();
+                    }
+                    else if (nodeName == nameof(options.ShowRefreshRate))
+                    {
+                        options.ShowRefreshRate = reader.ReadElementContentAsBoolean();
+                    }
+                }
+            }
+
+            return options;
         }
     }
 }

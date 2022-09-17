@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Media;
 using ZED.Common;
-using ZED.Display;
-using ZED.Scenes;
 using ZED.Utilities;
 
 namespace ZED
@@ -15,7 +10,6 @@ namespace ZED
         public static ZEDProgram Instance;
 
         public bool IsClosing = false;
-        public bool DebugMode = true;
         public bool ErrorOccurred = false;
 
         public Random Random = new Random();
@@ -58,7 +52,7 @@ namespace ZED
             Logger.Log();
             Logger.Log($"Initializing program...");
 
-            if (DebugMode)
+            if (Settings.DebugMode)
             {
                 Logger.Log("*** WARNING: Debug mode is enabled. ***");
                 Logger.Log("Press SHIFT+Q at any time to exit.");
@@ -69,7 +63,7 @@ namespace ZED
 
         public virtual void Close()
         {
-            if (DebugMode)
+            if (Settings.DebugMode)
             {
                 Logger.Log($"Shutting down application...");
             }

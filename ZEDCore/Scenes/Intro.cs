@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SkiaSharp;
+using System;
 using ZED.Common;
 using ZED.Input;
-using SkiaSharp;
 
 namespace ZED.Scenes
 {
@@ -130,12 +130,12 @@ namespace ZED.Scenes
 
             int curY = fontSize.y;
             int curX = 0;
-            
+
             var text = new GUI.Text(curX, curY, "ZED", SKColors.Black, Fonts.FiveBySeven);
-            
-            for (int i = 0; i <= Display.Width / Math.Max(fontSize.x * 3, 1); i++)
+
+            for (int i = 0; i <= Display.Width / Math.Max(fontSize.x * 3, 1) * 2; i++)
             {
-                for (int j = 0; j <= Display.Height / Math.Max(fontSize.y - 1, 1); j++)
+                for (int j = 0; j <= Display.Height / Math.Max(fontSize.y - 1, 1) * 2; j++)
                 {
                     text.TextColor = ColorExtensions.ColorFromHSV(90 + (curX + curY * 2));
                     text.X = curX;
@@ -143,7 +143,7 @@ namespace ZED.Scenes
                     text.Draw(Display, false);
                     curY += fontSize.y - 1;
                 }
-            
+
                 curY = 5;
                 curX += fontSize.x * 3;
             }

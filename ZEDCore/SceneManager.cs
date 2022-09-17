@@ -1,6 +1,6 @@
 ﻿namespace ZED
 {
-    internal class SceneManager
+    public class SceneManager
     {
         public static int FrameRate = 60;
         public static bool LockFPS = false;

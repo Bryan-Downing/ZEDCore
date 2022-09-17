@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ZED.Input
 {
-    public class InputDevice : IDisposable
+    public abstract class InputDevice : IDisposable
     {
         public string DeviceID { get; private set; } = string.Empty;
 
@@ -28,10 +28,9 @@ namespace ZED.Input
             AxisChanged?.Invoke(sender, e);
         }
 
-        public virtual void Dispose()
-        {
+        public abstract void ProcessMessages();
 
-        }
+        public abstract void Dispose();
     }
 
     public enum Axis

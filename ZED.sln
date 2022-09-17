@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZED", "ZED\ZED.csproj", "{88DC137E-84C7-4F03-BADE-74BB728BC356}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZED", "ZEDCore\ZED.csproj", "{88DC137E-84C7-4F03-BADE-74BB728BC356}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LEDMatrixDisplay", "LEDMatrixDisplay\LEDMatrixDisplay.csproj", "{ED138344-C1A8-4AC9-917A-C906B3674629}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LEDMatrixDisplay", "LEDMatrixDisplay\LEDMatrixDisplay.csproj", "{ED138344-C1A8-4AC9-917A-C906B3674629}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsDisplay", "WinFormsDisplay\WinFormsDisplay.csproj", "{244448A9-8F63-42B5-9FFA-0E662098E33C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinFormsDisplay", "WinFormsDisplay\WinFormsDisplay.csproj", "{244448A9-8F63-42B5-9FFA-0E662098E33C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteLEDMatrixDisplay", "RemoteLEDMatrixDisplay\RemoteLEDMatrixDisplay.csproj", "{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteLEDMatrixReceiver", "RemoteLEDMatrixReceiver\RemoteLEDMatrixReceiver.csproj", "{4815D948-21ED-439F-B6F4-B7B5BB216560}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +45,22 @@ Global
 		{244448A9-8F63-42B5-9FFA-0E662098E33C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{244448A9-8F63-42B5-9FFA-0E662098E33C}.Release|x86.ActiveCfg = Release|Any CPU
 		{244448A9-8F63-42B5-9FFA-0E662098E33C}.Release|x86.Build.0 = Release|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Debug|x86.Build.0 = Debug|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Release|x86.ActiveCfg = Release|Any CPU
+		{67ED96A1-ED3C-4EB7-BDB2-CA41E056F029}.Release|x86.Build.0 = Release|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Debug|x86.Build.0 = Debug|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Release|x86.ActiveCfg = Release|Any CPU
+		{4815D948-21ED-439F-B6F4-B7B5BB216560}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

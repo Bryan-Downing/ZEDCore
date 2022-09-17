@@ -1,6 +1,6 @@
-﻿using System;
-using ZED.Display;
-using SkiaSharp;
+﻿using SkiaSharp;
+using System;
+using ZED.Interfaces;
 
 namespace ZED.GUI
 {

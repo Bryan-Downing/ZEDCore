@@ -1,8 +1,8 @@
-﻿using ZED.Common;
+﻿using SkiaSharp;
+using ZED.Common;
 using ZED.GUI;
 using ZED.Input;
 using ZED.Objects;
-using SkiaSharp;
 
 namespace ZED.Scenes
 {
@@ -13,7 +13,7 @@ namespace ZED.Scenes
         private Text _finishText;
         private StarField _starField;
 
-        private SKBitmap _controllerImage = null; //Properties.Resources.Controller.ToSKBitmap(); TODO
+        private SKBitmap _controllerImage = null; //SKImage.FromEncodedData(""); //Properties.Resources.Controller.ToSKBitmap(); TODO
 
         private object _assignmentLock = new object();
 

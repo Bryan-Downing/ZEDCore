@@ -1,9 +1,8 @@
 ﻿using rpi_rgb_led_matrix_sharp;
 using ZED;
 using ZED.Common;
-using ZED.Display;
+using ZED.Interfaces;
 using ZED.Scenes;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LEDMatrixDisplay
 {
@@ -25,7 +24,7 @@ namespace LEDMatrixDisplay
 
         public void Run()
         {
-            IDisplay display = new Display(ConvertOptionsStruct(Settings.MatrixOptions));
+            IDisplay display = new Display(Settings.MatrixOptions.ToRGBLedMatrixOptions());
 
             new Intro().Run(display);
 
@@ -36,34 +35,7 @@ namespace LEDMatrixDisplay
 
         protected override void HandleArguments(string[] args)
         {
-            
-        }
 
-        private RGBLedMatrixOptions ConvertOptionsStruct(ZEDMatrixOptions options)
-        {
-            return new RGBLedMatrixOptions()
-            {
-                HardwareMapping = options.HardwareMapping,
-                Rows = options.Rows,
-                Cols = options.Cols,
-                ChainLength = options.ChainLength,
-                Parallel = options.Parallel,
-                PwmBits = options.PwmBits,
-                PwmLsbNanoseconds = options.PwmLsbNanoseconds,
-                PwmDitherBits = options.PwmDitherBits,
-                Brightness = options.Brightness,
-                ScanMode = options.ScanMode,
-                RowAddressType = options.RowAddressType,
-                Multiplexing = options.Multiplexing,
-                LedRgbSequence = options.LedRgbSequence,
-                PixelMapperConfig = options.PixelMapperConfig,
-                PanelType = options.PanelType,
-                DisableHardwarePulsing = options.DisableHardwarePulsing,
-                ShowRefreshRate = options.ShowRefreshRate,
-                InverseColors = options.InverseColors,
-                LimitRefreshRateHz = options.LimitRefreshRateHz,
-                GpioSlowdown = options.GpioSlowdown
-            };
         }
     }
 }

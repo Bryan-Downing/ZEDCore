@@ -1,74 +1,123 @@
 ﻿using rpi_rgb_led_matrix_sharp;
 using SkiaSharp;
+using System.Net;
+using System.Net.Sockets;
 using ZED.Common;
 using ZED.Interfaces;
+using System.Linq;
+using System.IO.Compression;
 
-namespace LEDMatrixDisplay
+namespace RemoteLEDMatrixDisplay
 {
     internal class Display : IDisplay
     {
         public int Width
         {
-            get { return _canvas.Width; }
+            get { return _options.Cols * _options.ChainLength; }
         }
 
         public int Height
         {
-            get { return _canvas.Height; }
+            get { return _options.Rows * _options.Parallel; }
         }
 
-        private RGBLedMatrix _matrix;
-        private RGBLedCanvas _canvas;
+        private ZEDMatrixOptions _options;
+        private byte[,,] _pixelData;
 
-        public Display(RGBLedMatrixOptions options)
+        private TcpClient _client;
+        private NetworkStream _stream;
+
+        public Display(ZEDMatrixOptions options, string remoteIP, int remotePort)
         {
-            _matrix = new RGBLedMatrix(options);
-            _canvas = _matrix.CreateOffscreenCanvas();
+            _options = options;
+            _pixelData = new byte[Width, Height, 3];
+
+            _client = new TcpClient(remoteIP, remotePort);
+            _stream = _client.GetStream();
+
+            InitializeRemoteDisplay();
         }
 
-        public Display(int rows, int chained, int parallel)
+        private void InitializeRemoteDisplay()
         {
-            _matrix = new RGBLedMatrix(rows, chained, parallel);
-            _canvas = _matrix.CreateOffscreenCanvas();
+            _stream.Write(_options.Serialize());
+
+            // TODO: Better handshake?
+            while (_stream.ReadByte() <= 0)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         public void Clear()
         {
-            _canvas.Clear();
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int c = 0; c < 3; c++)
+                    {
+                        _pixelData[x, y, c] = 0;
+                    }
+                }
+            }
         }
 
         public void Draw()
         {
-            _matrix.SwapOnVsync(_canvas);
+            if (!_client.Connected)
+            {
+                Console.WriteLine("Disconnected.");
+                return;
+            }
+
+            int i = 0;
+
+            byte[] buffer = new byte[_pixelData.Length];
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    for (int c = 0; c < 3; c++)
+                    {
+                        buffer[i++] = _pixelData[x, y, c];
+                    }
+                }
+            }
+
+            try
+            {
+                _stream.Write(buffer);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Caught exception writing frame: {e.Message}");
+            }
         }
 
         public void DrawRect(int x, int y, int width, int height, SKColor color)
         {
-            Color colorToDraw = color.Mult(Settings.Brightness).ToMatrixColor();
-
             for (int i = x; i < x + width; i++)
             {
                 for (int j = y; j < y + height; j++)
                 {
-                    _canvas.SetPixel(i, j, colorToDraw);
+                    SetPixel(i, j, color);
                 }
             }
         }
 
         public void DrawBox(int x, int y, int width, int height, SKColor color)
         {
-            Color colorToDraw = color.Mult(Settings.Brightness).ToMatrixColor();
-
             for (int i = x; i < x + width; i++)
             {
-                _canvas.SetPixel(i, y, colorToDraw);
-                _canvas.SetPixel(i, y + height - 1, colorToDraw);
+                SetPixel(i, y, color);
+                SetPixel(i, y + height - 1, color);
             }
 
             for (int j = y; j < y + height; j++)
             {
-                _canvas.SetPixel(x, j, colorToDraw);
-                _canvas.SetPixel(x + width - 1, j, colorToDraw);
+                SetPixel(x, j, color);
+                SetPixel(x + width - 1, j, color);
             }
         }
 
@@ -98,29 +147,26 @@ namespace LEDMatrixDisplay
                     byte r = cachedImage.Data[(imgX * 3) + 2 + imgY * cachedImage.Stride];
                     byte g = cachedImage.Data[(imgX * 3) + 1 + imgY * cachedImage.Stride];
                     byte b = cachedImage.Data[(imgX * 3) + 0 + imgY * cachedImage.Stride];
-                    _canvas.SetPixel(x + imgX, y + imgY, new Color(r, g, b).Mult(Settings.Brightness));
+                    SetPixel(x + imgX, y + imgY, new SKColor(r, g, b));
                 }
             }
         }
 
         public void DrawText(object font, int x, int y, SKColor color, string text, int spacing = 0, bool vertical = false)
         {
-            _canvas.DrawText((RGBLedFont)font, x, y, color.Mult(Settings.Brightness).ToMatrixColor(), text, spacing, vertical);
+            //_canvas.DrawText((RGBLedFont)font, x, y, color.Mult(Settings.Brightness).ToMatrixColor(), text, spacing, vertical);
+            // TODO
         }
 
         public void Fill(SKColor color)
         {
-            _canvas.Fill(color.ToMatrixColor().Mult(Settings.Brightness));
-        }
-
-        public void SetPixel(int x, int y, SKColor color)
-        {
-            _canvas.SetPixel(x, y, color.ToMatrixColor().Mult(Settings.Brightness));
-        }
-
-        public void Dispose()
-        {
-            _matrix?.Dispose();
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    SetPixel(x, y, color);
+                }
+            }
         }
 
         public void DrawCircle(int cx, int cy, int radius, SKColor color, bool filled = false)
@@ -202,6 +248,23 @@ namespace LEDMatrixDisplay
                 x = x + dx;
                 y = y + dy;
             }
+        }
+
+        public void SetPixel(int x, int y, SKColor color)
+        {
+            if (x < 0 || y < 0 || x >= Width || y >= Height)
+            {
+                return;
+            }
+
+            _pixelData[x, y, 0] = (byte)(color.Red * Settings.Brightness);
+            _pixelData[x, y, 1] = (byte)(color.Green * Settings.Brightness);
+            _pixelData[x, y, 2] = (byte)(color.Blue * Settings.Brightness);
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }

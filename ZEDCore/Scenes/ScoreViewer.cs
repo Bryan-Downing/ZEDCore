@@ -1,12 +1,9 @@
-﻿using System;
+﻿using SkiaSharp;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZED.Utilities;
-using ZED.GUI;
 using ZED.Common;
-using SkiaSharp;
+using ZED.GUI;
+using ZED.Utilities;
 
 namespace ZED.Scenes
 {

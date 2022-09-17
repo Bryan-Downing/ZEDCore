@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SkiaSharp;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,6 @@ using System.Numerics;
 using ZED.Common;
 using ZED.Input;
 using ZED.Objects;
-using SkiaSharp;
 
 namespace ZED.Scenes
 {
@@ -349,7 +349,7 @@ namespace ZED.Scenes
 
             private double _msAccumulatorX = 0;
             private double _msAccumulatorY = 0;
-            public void Update(long lastFrameMS, Display.IDisplay display)
+            public void Update(long lastFrameMS, Interfaces.IDisplay display)
             {
                 _msAccumulatorX += lastFrameMS; //lastFrameTicks / (double)TimeSpan.TicksPerMillisecond;
                 _msAccumulatorY += lastFrameMS; //lastFrameTicks / (double)TimeSpan.TicksPerMillisecond;
@@ -404,7 +404,7 @@ namespace ZED.Scenes
                 }
             }
 
-            public void Draw(Display.IDisplay display)
+            public void Draw(Interfaces.IDisplay display)
             {
                 for (int x = 0; x < _pixelMask.Count; x++)
                 {

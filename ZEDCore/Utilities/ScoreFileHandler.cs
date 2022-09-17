@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Xml.Serialization;
 
 namespace ZED.Utilities
 {
@@ -18,7 +13,7 @@ namespace ZED.Utilities
             var scoreFileDirectory = fileDirectory ?? Path.GetTempPath();
             _scoreFilePath = Path.Combine(scoreFileDirectory, GetScoreFileName(sceneName));
         }
-        
+
         public string GetScoreFileName(string sceneName)
         {
             return $"{sceneName}Scores.bin";

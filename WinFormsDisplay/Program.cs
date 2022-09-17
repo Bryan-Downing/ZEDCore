@@ -38,6 +38,8 @@ namespace WinFormsDisplay
 
             var display = new Display(screenWidth, screenHeight);
 
+            InputManager.SetInputDeviceForPlayer(PlayerID.One, new FormInput(display.UnderlyingForm));
+
             new Intro().Run(display);
 
             display.Dispose();
@@ -45,7 +47,7 @@ namespace WinFormsDisplay
 
         protected override void HandleArguments(string[] args)
         {
-            
+
         }
     }
 }

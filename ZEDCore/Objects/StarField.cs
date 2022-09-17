@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SkiaSharp;
+using System;
 using System.Collections.Generic;
 using ZED.Common;
-using ZED.Display;
-using SkiaSharp;
+using ZED.Interfaces;
 
 namespace ZED.Objects
 {

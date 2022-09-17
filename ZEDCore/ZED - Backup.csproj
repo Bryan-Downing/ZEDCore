@@ -49,11 +49,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove=".vs\**" />
-    <Compile Remove="obj\**" />
     <EmbeddedResource Remove=".vs\**" />
-    <EmbeddedResource Remove="obj\**" />
     <None Remove=".vs\**" />
-    <None Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="RGBLedMatrix, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -79,6 +76,6 @@
     <VisualStudio AllowExistingFolder="true" />
   </ProjectExtensions>
   <PropertyGroup>
-    <BaseIntermediateOutputPath>\obj</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>C:\Users\Jay\Documents\ZED\ZEDCore\obj</BaseIntermediateOutputPath>
   </PropertyGroup>
 </Project>

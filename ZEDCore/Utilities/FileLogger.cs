@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using ZED.Common;
 
 namespace ZED.Utilities
 {
@@ -38,7 +35,7 @@ namespace ZED.Utilities
             _streamWriter.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss.fff")}] [{callerName}] {message}");
             _streamWriter.Flush();
 
-            if (ZEDProgram.Instance.DebugMode)
+            if (Settings.DebugMode)
             {
                 Console.WriteLine(message);
             }

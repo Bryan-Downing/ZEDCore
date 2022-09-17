@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Media;
-using ZED.Display;
+using ZED.Interfaces;
 
 namespace ZED.GUI
 {
